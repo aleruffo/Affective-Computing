@@ -109,8 +109,8 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
     return (
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading saved videos...</p>
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-300 text-lg">Loading saved videos...</p>
         </div>
       </div>
     );
@@ -119,11 +119,11 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
   if (error) {
     return (
       <div className="w-full max-w-7xl mx-auto">
-        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-8 text-center">
-          <p className="text-yellow-800 text-lg mb-4">⚠️ {error}</p>
+        <div className="bg-yellow-900/30 border-2 border-yellow-600 rounded-xl p-8 text-center">
+          <p className="text-yellow-200 text-lg mb-4">⚠️ {error}</p>
           <button 
             onClick={fetchSavedVideos} 
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-semibold transition-all"
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
           >
             Try Again
           </button>
@@ -135,41 +135,41 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8 px-4">
-        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-3xl font-bold text-gray-100 flex items-center gap-2">
           📁 Saved Videos
         </h2>
         <button 
           onClick={fetchSavedVideos} 
-          className="bg-gradient-primary text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
         >
           🔄 Refresh
         </button>
       </div>
 
       {videos.length === 0 ? (
-        <div className="bg-gradient-secondary rounded-xl p-16 text-center shadow-inner">
-          <p className="text-gray-700 text-2xl mb-2">📭 No saved videos yet</p>
-          <p className="text-gray-500 text-lg">Record and analyze a video to see it here</p>
+        <div className="bg-gray-800 rounded-xl p-16 text-center shadow-inner border border-gray-700">
+          <p className="text-gray-200 text-2xl mb-2">📭 No saved videos yet</p>
+          <p className="text-gray-400 text-lg">Record and analyze a video to see it here</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
           {videos.map((video) => (
-            <div key={video.id} className="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-primary hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+            <div key={video.id} className="bg-gray-800 rounded-xl shadow-lg p-6 border-2 border-gray-700 hover:border-purple-500 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
               <div className="flex gap-4 mb-4">
                 <div className="text-4xl flex-shrink-0">🎬</div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-gray-800 truncate mb-2">{video.filename}</h3>
-                  <div className="flex gap-2 text-sm text-gray-600 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-100 truncate mb-2">{video.filename}</h3>
+                  <div className="flex gap-2 text-sm text-gray-400 mb-2">
                     <span>{formatFileSize(video.size)}</span>
                     <span>•</span>
                     <span>{formatDate(video.created_at)}</span>
                   </div>
                   {video.has_analysis && (
                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                      video.analysis_status === 'completed' ? 'bg-green-100 text-green-800' :
-                      video.analysis_status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                      video.analysis_status === 'failed' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
+                      video.analysis_status === 'completed' ? 'bg-green-900/50 text-green-300 border border-green-700' :
+                      video.analysis_status === 'processing' ? 'bg-blue-900/50 text-blue-300 border border-blue-700' :
+                      video.analysis_status === 'failed' ? 'bg-red-900/50 text-red-300 border border-red-700' :
+                      'bg-gray-700 text-gray-300 border border-gray-600'
                     }`}>
                       {video.analysis_status === 'completed' ? '✓ Analyzed' :
                        video.analysis_status === 'processing' ? '⏳ Processing' :
@@ -182,7 +182,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                 <button
                   onClick={() => handleReanalyze(video.id)}
                   disabled={isAnalyzing && selectedVideo === video.id}
-                  className="flex-1 bg-gradient-primary text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
                   {isAnalyzing && selectedVideo === video.id ? (
                     <>
@@ -198,7 +198,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                 <button
                   onClick={() => handleDelete(video.id)}
                   disabled={isAnalyzing}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   🗑️ Delete
                 </button>
@@ -209,7 +209,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
       )}
 
       {analysisResult && (
-        <div className="mt-12 pt-8 border-t-2 border-gray-200">
+        <div className="mt-12 pt-8 border-t-2 border-gray-700">
           <AnalysisResults result={analysisResult} />
         </div>
       )}

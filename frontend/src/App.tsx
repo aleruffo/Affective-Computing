@@ -20,8 +20,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-secondary to-secondary-dark">
-      <header className="bg-gradient-primary text-white p-8 shadow-lg">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 to-gray-800">
+      <header className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-8 shadow-lg">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-2 drop-shadow-md">
             🎭 Affective Computing
@@ -32,12 +32,12 @@ function App() {
         </div>
       </header>
 
-      <nav className="bg-white shadow-md sticky top-0 z-50 flex justify-center">
+      <nav className="bg-gray-800 shadow-md sticky top-0 z-50 flex justify-center border-b border-gray-700">
         <button 
           className={`flex-1 max-w-xs px-8 py-5 text-lg font-semibold transition-all duration-300 border-b-3 ${
             activeTab === 'record' 
-              ? 'text-primary border-b-primary bg-white relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gradient-primary' 
-              : 'text-gray-600 border-b-transparent hover:bg-gray-50 hover:text-primary'
+              ? 'text-purple-400 border-b-purple-500 bg-gray-800 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gradient-to-r after:from-purple-500 after:to-indigo-500' 
+              : 'text-gray-400 border-b-transparent hover:bg-gray-750 hover:text-purple-300'
           }`}
           onClick={() => setActiveTab('record')}
         >
@@ -46,8 +46,8 @@ function App() {
         <button 
           className={`flex-1 max-w-xs px-8 py-5 text-lg font-semibold transition-all duration-300 border-b-3 ${
             activeTab === 'saved' 
-              ? 'text-primary border-b-primary bg-white relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gradient-primary' 
-              : 'text-gray-600 border-b-transparent hover:bg-gray-50 hover:text-primary'
+              ? 'text-purple-400 border-b-purple-500 bg-gray-800 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gradient-to-r after:from-purple-500 after:to-indigo-500' 
+              : 'text-gray-400 border-b-transparent hover:bg-gray-750 hover:text-purple-300'
           }`}
           onClick={() => setActiveTab('saved')}
         >
@@ -77,7 +77,7 @@ function App() {
         )}
       </main>
 
-      <footer className="bg-white/90 text-center p-6 text-gray-600 shadow-inner">
+      <footer className="bg-gray-800/90 text-center p-6 text-gray-400 shadow-inner border-t border-gray-700">
         <p>Powered by SenseVoice & DeepFace</p>
       </footer>
     </div>

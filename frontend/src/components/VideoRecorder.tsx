@@ -177,14 +177,14 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       </div>
 
       {uploadProgress && (
-        <div className="mt-6 flex items-center justify-center gap-3 text-primary font-semibold">
-          <div className="w-6 h-6 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="mt-6 flex items-center justify-center gap-3 text-purple-400 font-semibold">
+          <div className="w-6 h-6 border-3 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
           {uploadProgress}
         </div>
       )}
 
       {error && (
-        <div className="mt-6 bg-red-50 border-2 border-red-500 text-red-700 px-6 py-4 rounded-lg text-center font-semibold">
+        <div className="mt-6 bg-red-900/50 border-2 border-red-500 text-red-200 px-6 py-4 rounded-lg text-center font-semibold">
           ⚠️ {error}
         </div>
       )}
