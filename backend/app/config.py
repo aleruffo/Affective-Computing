@@ -23,11 +23,15 @@ class Settings(BaseSettings):
     TEMP_DIR: str = "temp"
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
     
-    # Whisper Configuration
-    WHISPER_MODEL: str = "base"  # tiny, base, small, medium, large
-    WHISPER_DEVICE: str = "cpu"  # cpu or cuda
+    # SenseVoice Configuration (replaces Whisper)
+    SENSEVOICE_MODEL: str = "iic/SenseVoiceSmall"  # Model from ModelScope
+    SENSEVOICE_DEVICE: str = "cpu"  # cuda:0 or cpu (default: cpu for compatibility)
+    SENSEVOICE_VAD_MODEL: str = "fsmn-vad"  # Voice Activity Detection model
+    SENSEVOICE_MAX_SEGMENT_TIME: int = 30000  # Max segment time in ms
+    SENSEVOICE_LANGUAGE: str = "auto"  # auto, zh, en, yue, ja, ko, nospeech
+    SENSEVOICE_USE_ITN: bool = True  # Inverse Text Normalization
     
-    # DeepFace Configuration
+    # DeepFace Configuration (for facial emotion recognition)
     DEEPFACE_BACKEND: str = "opencv"  # opencv, ssd, dlib, mtcnn, retinaface
     DEEPFACE_MODEL: str = "Facenet"  # VGG-Face, Facenet, OpenFace, DeepFace, DeepID, ArcFace
     

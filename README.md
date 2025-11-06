@@ -8,17 +8,19 @@ This platform combines React + TypeScript frontend with Python FastAPI backend t
 
 - **Frontend**: React 18 + TypeScript + Vite with MediaStream API for video/audio recording
 - **Backend**: Python FastAPI with ML models for emotion analysis
-  - OpenAI Whisper for speech-to-text transcription
-  - DeepFace for facial emotion recognition (7 emotions: happy, sad, angry, fear, surprise, disgust, neutral)
+  - **SenseVoice** for multilingual speech recognition and speech emotion recognition (50+ languages)
+  - **DeepFace** for facial emotion recognition (7 emotions: happy, sad, angry, fear, surprise, disgust, neutral)
   - FFmpeg for audio extraction and processing
 
 ## ✨ Features
 
 - 🎥 **Real-time Video Recording** - Browser-based capture with start, pause, resume, stop controls
-- 🎤 **Speech Transcription** - Multilingual speech-to-text with OpenAI Whisper
-- 🎭 **Emotion Recognition** - Facial expression analysis with DeepFace
-- � **Rich Visualizations** - Emotion timeline, transcription segments, confidence scores
+- 🗣️ **Multilingual Speech Recognition** - 50+ languages supported with SenseVoice
+- 🎭 **Dual Emotion Recognition** - Both speech and facial emotion analysis
+- 🔊 **Audio Event Detection** - Detects laughter, applause, crying, and more
+- 📊 **Rich Visualizations** - Emotion timeline, transcription segments, confidence scores
 - 🔄 **Async Processing** - Non-blocking video analysis with progress tracking
+- ⚡ **High Performance** - SenseVoice is 15x faster than Whisper-Large
 - 🎨 **Modern UI** - Responsive design with dark mode support
 - 🐳 **Docker Support** - One-command deployment with Docker Compose
 - 📝 **Type Safety** - Full TypeScript (frontend) + Pydantic (backend)
@@ -43,8 +45,8 @@ affective-computing/
 ├── backend/                       # Python FastAPI
 │   ├── app/
 │   │   ├── services/
-│   │   │   ├── transcription_service.py    # Whisper integration
-│   │   │   ├── emotion_service.py          # DeepFace integration
+│   │   │   ├── sensevoice_service.py       # SenseVoice integration (ASR + SER)
+│   │   │   ├── emotion_service.py          # DeepFace integration (facial)
 │   │   │   └── video_processor.py          # Main orchestrator
 │   │   ├── utils/
 │   │   │   └── audio_extractor.py          # FFmpeg wrapper
@@ -136,13 +138,15 @@ npm run dev
 ### Backend Environment Variables (`.env`)
 
 ```bash
-# Whisper Configuration
-WHISPER_MODEL=base        # Options: tiny, base, small, medium, large
-WHISPER_DEVICE=cpu        # Options: cpu, cuda
+# SenseVoice Configuration
+SENSEVOICE_MODEL=iic/SenseVoiceSmall  # Model from ModelScope
+SENSEVOICE_DEVICE=cpu                 # Options: cpu, cuda:0
+SENSEVOICE_LANGUAGE=auto              # Options: auto, zh, en, yue, ja, ko
+SENSEVOICE_USE_ITN=True               # Inverse Text Normalization
 
-# DeepFace Configuration
-DEEPFACE_BACKEND=opencv   # Options: opencv, ssd, mtcnn, retinaface
-FRAME_SAMPLE_RATE=30      # Analyze every Nth frame
+# DeepFace Configuration (for facial emotions)
+DEEPFACE_BACKEND=opencv               # Options: opencv, ssd, mtcnn, retinaface
+FRAME_SAMPLE_RATE=30                  # Analyze every Nth frame
 
 # Server
 PORT=8000
@@ -151,23 +155,22 @@ HOST=0.0.0.0
 
 ### Performance Tuning
 
-**For faster processing (lower accuracy):**
+**For faster processing:**
 ```bash
-WHISPER_MODEL=tiny
+SENSEVOICE_DEVICE=cuda:0  # Use GPU if available
 FRAME_SAMPLE_RATE=60
 DEEPFACE_BACKEND=opencv
 ```
 
-**For better accuracy (slower):**
+**For better accuracy:**
 ```bash
-WHISPER_MODEL=medium
 FRAME_SAMPLE_RATE=15
 DEEPFACE_BACKEND=retinaface
 ```
 
 **Balanced (recommended):**
 ```bash
-WHISPER_MODEL=base
+SENSEVOICE_DEVICE=cpu
 FRAME_SAMPLE_RATE=30
 DEEPFACE_BACKEND=opencv
 ```
@@ -206,20 +209,33 @@ Get analysis results.
       {
         "text": "Segment text",
         "start": 0.0,
-        "end": 2.5,
-        "confidence": 0.95
+        "end": 2.5
       }
     ]
   },
-  "emotions": [
+  "speech_emotions": [
+    {
+      "emotion": "happy",
+      "confidence": 0.8,
+      "timestamp": 0.0,
+      "events": ["Speech", "Laughter"]
+    }
+  ],
+  "audio_events": ["Speech", "Laughter"],
+  "facial_emotions": [
     {
       "emotion": "happy",
       "confidence": 0.85,
       "timestamp": 1.5,
-      "frame": 45
+      "frame": 45,
+      "all_emotions": {
+        "happy": 0.85,
+        "neutral": 0.10,
+        "surprise": 0.05
+      }
     }
   ],
-  "dominant_emotion": {
+  "dominant_facial_emotion": {
     "emotion": "happy",
     "percentage": 65.5
   },
@@ -244,11 +260,11 @@ Upload to Backend (Axios)
 Video Processing Pipeline
     ├─→ Audio Extraction (FFmpeg)
     │       ↓
-    │   Speech Transcription (Whisper)
+    │   Speech Recognition & Emotion (SenseVoice)
     │
     └─→ Frame Sampling (OpenCV)
             ↓
-        Emotion Detection (DeepFace)
+        Facial Emotion Detection (DeepFace)
     ↓
 Results Stored & Returned
     ↓
@@ -265,8 +281,8 @@ Frontend Displays Results
 
 **Backend:**
 - `VideoProcessor` - Orchestrates analysis pipeline
-- `TranscriptionService` - Whisper model management
-- `EmotionService` - DeepFace emotion detection
+- `SenseVoiceService` - Speech recognition + speech emotion recognition
+- `EmotionService` - DeepFace facial emotion detection
 - `AudioExtractor` - FFmpeg wrapper for audio extraction
 
 ## � Troubleshooting
@@ -332,7 +348,9 @@ while True:
     
     if result['status'] == 'completed':
         print(result['transcription']['text'])
-        print(result['dominant_emotion'])
+        print(result['dominant_facial_emotion'])
+        print(result['speech_emotions'])
+        print(result['audio_events'])
         break
     
     time.sleep(2)
@@ -384,8 +402,8 @@ const getResults = async (id) => {
 
 **Backend:**
 - Python 3.9+, FastAPI, Uvicorn
-- OpenAI Whisper, DeepFace
-- FFmpeg, OpenCV, TensorFlow
+- SenseVoice (FunASR), DeepFace
+- FFmpeg, OpenCV, TensorFlow, PyTorch
 
 **DevOps:**
 - Docker, Docker Compose
@@ -422,10 +440,14 @@ MIT License - feel free to use this project for your own purposes.
 
 ## 🌟 Acknowledgments
 
-- OpenAI Whisper for speech recognition
+- SenseVoice (FunAudioLLM) for multilingual speech recognition and emotion detection
 - DeepFace for facial emotion detection
 - FastAPI for the excellent web framework
 - React team for the UI library
+
+## 📚 Additional Documentation
+
+- [SenseVoice Migration Guide](./SENSEVOICE_MIGRATION.md) - Detailed migration documentation
 
 ---
 

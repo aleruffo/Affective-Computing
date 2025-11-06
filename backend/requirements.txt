@@ -5,8 +5,14 @@ python-multipart==0.0.6
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# ML/AI Libraries
-openai-whisper==20231117
+# ML/AI Libraries - SenseVoice for Speech Recognition and Speech Emotion Recognition
+funasr>=1.0.0
+funasr-onnx>=0.4.0
+modelscope>=1.9.0
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Facial Emotion Recognition (keeping for video analysis)
 deepface==0.0.79
 tf-keras==2.15.0
 tensorflow==2.15.0

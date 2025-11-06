@@ -4,13 +4,21 @@ export interface EmotionData {
   confidence: number;
   timestamp: number;
   frame: number;
+  all_emotions?: Record<string, number>;
+  frame_image?: string;
+}
+
+export interface SpeechEmotionData {
+  emotion: string;
+  confidence: number;
+  timestamp: number;
+  events: string[];
 }
 
 export interface TranscriptionSegment {
   text: string;
   start: number;
   end: number;
-  confidence: number;
 }
 
 export interface AnalysisResponse {
@@ -21,6 +29,16 @@ export interface AnalysisResponse {
     language: string;
     segments: TranscriptionSegment[];
   };
+  // New fields from SenseVoice integration
+  speech_emotions?: SpeechEmotionData[];
+  audio_events?: string[];
+  // Renamed fields for clarity
+  facial_emotions?: EmotionData[];
+  dominant_facial_emotion?: {
+    emotion: string;
+    percentage: number;
+  };
+  // Legacy support (deprecated, will be removed)
   emotions?: EmotionData[];
   dominant_emotion?: {
     emotion: string;
