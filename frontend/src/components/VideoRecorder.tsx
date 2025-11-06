@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { VideoRecorderProps } from '../types';
 import { useMediaRecorder } from '../hooks/useMediaRecorder';
 import { uploadVideo, getAnalysisStatus } from '../services/api';
-import './VideoRecorder.css';
 
 const VideoRecorder: React.FC<VideoRecorderProps> = ({
   onAnalysisComplete,
@@ -106,26 +105,29 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   };
 
   return (
-    <div className="video-recorder">
-      <div className="video-container">
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="relative bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
         <video
           ref={videoRef}
           autoPlay
           muted={recordingState.isRecording}
           playsInline
-          className="video-element"
+          className="w-full aspect-video object-cover"
         />
         {recordingState.isRecording && (
-          <div className="recording-indicator">
-            <span className="recording-dot"></span>
+          <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg animate-pulse">
+            <span className="w-3 h-3 bg-white rounded-full animate-pulse"></span>
             REC {formatDuration(recordingState.duration)}
           </div>
         )}
       </div>
 
-      <div className="controls">
+      <div className="flex flex-wrap gap-3 justify-center mt-6">
         {!recordingState.isRecording && !recordingState.blob && (
-          <button onClick={handleStartRecording} className="btn btn-primary">
+          <button 
+            onClick={handleStartRecording} 
+            className="bg-gradient-primary text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+          >
             📹 Start Recording
           </button>
         )}
@@ -133,15 +135,24 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         {recordingState.isRecording && (
           <>
             {!recordingState.isPaused ? (
-              <button onClick={pauseRecording} className="btn btn-warning">
+              <button 
+                onClick={pauseRecording} 
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              >
                 ⏸ Pause
               </button>
             ) : (
-              <button onClick={resumeRecording} className="btn btn-success">
+              <button 
+                onClick={resumeRecording} 
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              >
                 ▶️ Resume
               </button>
             )}
-            <button onClick={stopRecording} className="btn btn-danger">
+            <button 
+              onClick={stopRecording} 
+              className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+            >
               ⏹ Stop
             </button>
           </>
@@ -149,10 +160,16 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
 
         {recordingState.blob && !isAnalyzing && (
           <>
-            <button onClick={handleAnalyze} className="btn btn-primary">
+            <button 
+              onClick={handleAnalyze} 
+              className="bg-gradient-primary text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+            >
               🔍 Analyze Emotion
             </button>
-            <button onClick={resetRecording} className="btn btn-secondary">
+            <button 
+              onClick={resetRecording} 
+              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+            >
               🔄 Record Again
             </button>
           </>
@@ -160,14 +177,14 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       </div>
 
       {uploadProgress && (
-        <div className="progress-message">
-          <div className="spinner"></div>
+        <div className="mt-6 flex items-center justify-center gap-3 text-primary font-semibold">
+          <div className="w-6 h-6 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
           {uploadProgress}
         </div>
       )}
 
       {error && (
-        <div className="error-message">
+        <div className="mt-6 bg-red-50 border-2 border-red-500 text-red-700 px-6 py-4 rounded-lg text-center font-semibold">
           ⚠️ {error}
         </div>
       )}
