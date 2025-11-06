@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { AnalysisResponse } from '../types';
-import AnalysisResults from './AnalysisResults';
 import api from '../services/api';
 
 interface SavedVideosProps {
@@ -27,7 +26,9 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResponse | null>(null);
+  const [loadingAnalysis, setLoadingAnalysis] = useState<string | null>(null);
+  const [renamingVideo, setRenamingVideo] = useState<string | null>(null);
+  const [newFilename, setNewFilename] = useState<string>('');
 
   useEffect(() => {
     fetchSavedVideos();
@@ -47,11 +48,27 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
     }
   };
 
+  const handleViewAnalysis = async (videoId: string) => {
+    try {
+      setLoadingAnalysis(videoId);
+      setSelectedVideo(videoId);
+      setError(null);
+      
+      const response = await api.get<AnalysisResponse>(`/analysis/${videoId}`);
+      onAnalysisComplete(response.data);
+      
+    } catch (err) {
+      console.error('Failed to load analysis:', err);
+      setError('Failed to load analysis results');
+    } finally {
+      setLoadingAnalysis(null);
+    }
+  };
+
   const handleReanalyze = async (videoId: string) => {
     try {
       onAnalysisStart();
       setSelectedVideo(videoId);
-      setAnalysisResult(null);
       
       const response = await api.post<AnalysisResponse>(`/reanalyze-video/${videoId}`);
       
@@ -60,7 +77,6 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
         const result = await api.get<AnalysisResponse>(`/analysis/${response.data.id}`);
         
         if (result.data.status === 'completed' || result.data.status === 'failed') {
-          setAnalysisResult(result.data);
           onAnalysisComplete(result.data);
           setSelectedVideo(null);
         } else {
@@ -86,11 +102,48 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
       setVideos(videos.filter(v => v.id !== videoId));
       if (selectedVideo === videoId) {
         setSelectedVideo(null);
-        setAnalysisResult(null);
       }
     } catch (err) {
       console.error('Failed to delete video:', err);
       setError('Failed to delete video');
+    }
+  };
+
+  const handleStartRename = (videoId: string, currentFilename: string) => {
+    setRenamingVideo(videoId);
+    // Remove .webm extension for editing
+    setNewFilename(currentFilename.replace('.webm', ''));
+  };
+
+  const handleCancelRename = () => {
+    setRenamingVideo(null);
+    setNewFilename('');
+  };
+
+  const handleSaveRename = async (videoId: string) => {
+    if (!newFilename.trim()) {
+      setError('Filename cannot be empty');
+      return;
+    }
+
+    try {
+      const response = await api.put(`/saved-videos/${videoId}/rename`, {
+        filename: newFilename.trim()
+      });
+
+      // Update the video in the list
+      setVideos(videos.map(v => 
+        v.id === videoId 
+          ? { ...v, id: response.data.new_id, filename: response.data.filename }
+          : v
+      ));
+
+      setRenamingVideo(null);
+      setNewFilename('');
+      setError(null);
+    } catch (err: any) {
+      console.error('Failed to rename video:', err);
+      setError(err.response?.data?.detail || 'Failed to rename video');
     }
   };
 
@@ -156,61 +209,111 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
           {videos.map((video) => (
             <div key={video.id} className="bg-gray-800 rounded-xl shadow-lg p-6 border-2 border-gray-700 hover:border-purple-500 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
               <div className="flex gap-4 mb-4">
-                <div className="text-4xl flex-shrink-0">🎬</div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-gray-100 truncate mb-2">{video.filename}</h3>
+                  {renamingVideo === video.id ? (
+                    <div className="flex items-center gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={newFilename}
+                        onChange={(e) => setNewFilename(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSaveRename(video.id);
+                          } else if (e.key === 'Escape') {
+                            handleCancelRename();
+                          }
+                        }}
+                        className="flex-1 bg-gray-700 text-gray-100 px-3 py-1 rounded border border-gray-600 focus:border-purple-500 focus:outline-none"
+                        autoFocus
+                        placeholder="Enter new name"
+                      />
+                      <button
+                        onClick={() => handleSaveRename(video.id)}
+                        className="text-green-400 hover:text-green-300 p-1"
+                        title="Save"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={handleCancelRename}
+                        className="text-red-400 hover:text-red-300 p-1"
+                        title="Cancel"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-lg font-semibold text-gray-100 truncate flex-1">{video.filename}</h3>
+                      <button
+                        onClick={() => handleStartRename(video.id, video.filename)}
+                        className="text-gray-400 hover:text-purple-400 p-1 transition-colors"
+                        title="Rename video"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                   <div className="flex gap-2 text-sm text-gray-400 mb-2">
                     <span>{formatFileSize(video.size)}</span>
                     <span>•</span>
                     <span>{formatDate(video.created_at)}</span>
                   </div>
-                  {video.has_analysis && (
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                      video.analysis_status === 'completed' ? 'bg-green-900/50 text-green-300 border border-green-700' :
-                      video.analysis_status === 'processing' ? 'bg-blue-900/50 text-blue-300 border border-blue-700' :
-                      video.analysis_status === 'failed' ? 'bg-red-900/50 text-red-300 border border-red-700' :
-                      'bg-gray-700 text-gray-300 border border-gray-600'
-                    }`}>
-                      {video.analysis_status === 'completed' ? '✓ Analyzed' :
-                       video.analysis_status === 'processing' ? '⏳ Processing' :
-                       video.analysis_status === 'failed' ? '✗ Failed' : 'Not Analyzed'}
-                    </span>
-                  )}
+                  
                 </div>
               </div>
               <div className="flex gap-3">
-                <button
-                  onClick={() => handleReanalyze(video.id)}
-                  disabled={isAnalyzing && selectedVideo === video.id}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  {isAnalyzing && selectedVideo === video.id ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      🔄 Reanalyze
-                    </>
-                  )}
-                </button>
+                {video.has_analysis ? (
+                  <button
+                    onClick={() => handleViewAnalysis(video.id)}
+                    disabled={loadingAnalysis === video.id}
+                    className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  >
+                    {loadingAnalysis === video.id ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        View Analysis
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleReanalyze(video.id)}
+                    disabled={isAnalyzing && selectedVideo === video.id}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzing && selectedVideo === video.id ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        Analyze
+                      </>
+                    )}
+                  </button>
+                )}
                 <button
                   onClick={() => handleDelete(video.id)}
-                  disabled={isAnalyzing}
+                  disabled={isAnalyzing || loadingAnalysis === video.id}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  🗑️ Delete
+                  Delete
                 </button>
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {analysisResult && (
-        <div className="mt-12 pt-8 border-t-2 border-gray-700">
-          <AnalysisResults result={analysisResult} />
         </div>
       )}
     </div>

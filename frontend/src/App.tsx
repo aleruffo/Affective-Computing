@@ -24,11 +24,9 @@ function App() {
       <header className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-8 shadow-lg">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-2 drop-shadow-md">
-            🎭 Affective Computing
+            Journaling Assitant
           </h1>
-          <p className="text-lg md:text-xl opacity-95">
-            Advanced Video Emotion Analysis Platform
-          </p>
+
         </div>
       </header>
 
@@ -63,10 +61,6 @@ function App() {
               onAnalysisStart={handleAnalysisStart}
               isAnalyzing={isAnalyzing}
             />
-            
-            {analysisResult && (
-              <AnalysisResults result={analysisResult} />
-            )}
           </>
         ) : (
           <SavedVideos 
@@ -76,6 +70,13 @@ function App() {
           />
         )}
       </main>
+
+      {analysisResult && (
+        <AnalysisResults 
+          result={analysisResult} 
+          onClose={() => setAnalysisResult(null)}
+        />
+      )}
 
       <footer className="bg-gray-800/90 text-center p-6 text-gray-400 shadow-inner border-t border-gray-700">
         <p>Powered by SenseVoice & DeepFace</p>

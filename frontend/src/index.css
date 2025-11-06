@@ -26,3 +26,41 @@ body {
   width: 100%;
   margin: 0 auto;
 }
+
+/* Modal Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Utility class for gray-750 */
+.bg-gray-750 {
+  background-color: #2d3748;
+}
+
+.hover\:bg-gray-750:hover {
+  background-color: #2d3748;
+}

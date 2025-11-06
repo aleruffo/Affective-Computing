@@ -62,6 +62,7 @@ export interface VideoRecorderProps {
 
 export interface AnalysisResultsProps {
   result: AnalysisResponse;
+  onClose?: () => void;
 }
 
 // MediaStream Types
