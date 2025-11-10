@@ -117,6 +117,7 @@ async def upload_video(video: UploadFile = File(...)):
                 "dominant_facial_emotion": result.get("dominant_facial_emotion"),
                 "speech_emotions": result.get("speech_emotions"),
                 "audio_events": result.get("audio_events"),
+                "thematic_analysis": result.get("thematic_analysis"),
             })
             
             # Save results to file
@@ -163,6 +164,7 @@ async def get_analysis(analysis_id: str):
         dominant_facial_emotion=result.get("dominant_facial_emotion"),
         speech_emotions=result.get("speech_emotions"),
         audio_events=result.get("audio_events"),
+        thematic_analysis=result.get("thematic_analysis"),
         created_at=result["created_at"],
         error=result.get("error"),
     )
@@ -250,6 +252,7 @@ async def reanalyze_video(video_id: str):
                 "dominant_facial_emotion": result.get("dominant_facial_emotion"),
                 "speech_emotions": result.get("speech_emotions"),
                 "audio_events": result.get("audio_events"),
+                "thematic_analysis": result.get("thematic_analysis"),
             })
             
             # Save results to file
@@ -274,6 +277,7 @@ async def reanalyze_video(video_id: str):
             dominant_facial_emotion=result.get("dominant_facial_emotion"),
             speech_emotions=result.get("speech_emotions"),
             audio_events=result.get("audio_events"),
+            thematic_analysis=result.get("thematic_analysis"),
             created_at=result["created_at"],
             error=result.get("error"),
         )

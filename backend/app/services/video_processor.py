@@ -3,6 +3,7 @@ import logging
 
 from app.services.sensevoice_service import SenseVoiceService
 from app.services.emotion_service import EmotionService
+from app.services.thematic_coding_service import ThematicCodingService
 
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,7 @@ class VideoProcessor:
     def __init__(self):
         self.sensevoice_service = SenseVoiceService()
         self.emotion_service = EmotionService()
+        self.thematic_coding_service = ThematicCodingService()
     
     async def process_video(self, video_path: str) -> Dict[str, Any]:
         """
@@ -61,6 +63,26 @@ class VideoProcessor:
                 logger.error(f"Facial emotion analysis failed: {e}", exc_info=True)
                 result["facial_emotions"] = None
                 result["dominant_facial_emotion"] = None
+            
+            # Run thematic analysis on transcription using LLM
+            try:
+                if result.get("transcription") and result["transcription"].get("text"):
+                    logger.info("Starting thematic analysis...")
+                    transcription_text = result["transcription"]["text"]
+                    thematic_result = await self.thematic_coding_service.analyze_themes(transcription_text)
+                    result["thematic_analysis"] = thematic_result
+                    logger.info(f"Thematic analysis completed: {len(thematic_result.get('themes', []))} themes found")
+                else:
+                    logger.warning("No transcription available for thematic analysis")
+                    result["thematic_analysis"] = None
+            except Exception as e:
+                logger.error(f"Thematic analysis failed: {e}", exc_info=True)
+                result["thematic_analysis"] = {
+                    "themes": [],
+                    "summary": f"Analysis failed: {str(e)}",
+                    "success": False,
+                    "error": str(e)
+                }
             
             logger.info("Video processing completed")
             logger.info(f"Final result keys: {result.keys()}")

@@ -21,6 +21,20 @@ export interface TranscriptionSegment {
   end: number;
 }
 
+export interface Theme {
+  name: string;
+  description: string;
+  quotes: string[];
+  confidence: number;
+}
+
+export interface ThematicAnalysis {
+  themes: Theme[];
+  summary: string;
+  success: boolean;
+  error?: string;
+}
+
 export interface AnalysisResponse {
   id: string;
   status: 'processing' | 'completed' | 'failed';
@@ -38,6 +52,8 @@ export interface AnalysisResponse {
     emotion: string;
     percentage: number;
   };
+  // Thematic analysis from LLM
+  thematic_analysis?: ThematicAnalysis;
   // Legacy support (deprecated, will be removed)
   emotions?: EmotionData[];
   dominant_emotion?: {

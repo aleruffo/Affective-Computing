@@ -39,7 +39,7 @@ function App() {
           }`}
           onClick={() => setActiveTab('record')}
         >
-          🎥 Record New Video
+          + Add New Entry
         </button>
         <button 
           className={`flex-1 max-w-xs px-8 py-5 text-lg font-semibold transition-all duration-300 border-b-3 ${
@@ -49,7 +49,7 @@ function App() {
           }`}
           onClick={() => setActiveTab('saved')}
         >
-          📁 Saved Videos
+          Saved Entries
         </button>
       </nav>
 

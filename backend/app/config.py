@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     # Processing
     FRAME_SAMPLE_RATE: int = 30  # Analyze every Nth frame
     
+    # Ollama Configuration (for thematic coding)
+    OLLAMA_BASE_URL: str = "http://localhost:11434"  # Default Ollama endpoint
+    OLLAMA_MODEL: str = "llama3.2"  # Default model, can be changed to llama3, mistral, etc.
+    OLLAMA_TIMEOUT: float = 120.0  # Timeout in seconds
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -23,3 +23,6 @@ ffmpeg-python==0.2.0
 # Utilities
 python-dotenv==1.0.0
 aiofiles==23.2.1
+
+# LLM Integration
+httpx==0.25.2

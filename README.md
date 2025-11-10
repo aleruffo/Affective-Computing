@@ -10,6 +10,7 @@ This platform combines React + TypeScript frontend with Python FastAPI backend t
 - **Backend**: Python FastAPI with ML models for emotion analysis
   - **SenseVoice** for multilingual speech recognition and speech emotion recognition (50+ languages)
   - **DeepFace** for facial emotion recognition (7 emotions: happy, sad, angry, fear, surprise, disgust, neutral)
+  - **Ollama** for LLM-based thematic coding of transcriptions
   - FFmpeg for audio extraction and processing
 
 ## ✨ Features
@@ -17,6 +18,7 @@ This platform combines React + TypeScript frontend with Python FastAPI backend t
 - 🎥 **Real-time Video Recording** - Browser-based capture with start, pause, resume, stop controls
 - 🗣️ **Multilingual Speech Recognition** - 50+ languages supported with SenseVoice
 - 🎭 **Dual Emotion Recognition** - Both speech and facial emotion analysis
+- 🧠 **LLM Thematic Coding** - Automated extraction of themes from transcriptions using local LLMs
 - 🔊 **Audio Event Detection** - Detects laughter, applause, crying, and more
 - 📊 **Rich Visualizations** - Emotion timeline, transcription segments, confidence scores
 - 🔄 **Async Processing** - Non-blocking video analysis with progress tracking
@@ -67,8 +69,19 @@ affective-computing/
 
 ### Option 1: Docker (Recommended)
 
+**Important:** For thematic coding with Ollama, you need to install and run Ollama on your **host machine** first:
+
 ```bash
-# Start all services
+# 1. Install Ollama on your host machine
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# 2. Pull a model
+ollama pull llama3.2
+
+# 3. Start Ollama (in a separate terminal)
+ollama serve
+
+# 4. Start Docker services
 docker-compose up --build
 
 # Frontend: http://localhost:3000
@@ -76,12 +89,15 @@ docker-compose up --build
 # API Docs: http://localhost:8000/docs
 ```
 
+**Note:** The Docker container connects to Ollama on your host machine via `host.docker.internal`. This is automatically configured in `docker-compose.yml`.
+
 ### Option 2: Manual Setup
 
 #### Prerequisites
 - Node.js 18+
 - Python 3.9+
 - FFmpeg
+- Ollama (for thematic coding)
 
 **Install FFmpeg:**
 ```bash
@@ -90,6 +106,20 @@ brew install ffmpeg
 
 # Ubuntu/Debian
 sudo apt-get install ffmpeg
+```
+
+**Install Ollama:**
+```bash
+# macOS/Linux
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Or visit https://ollama.ai for other installation methods
+
+# Pull a model (e.g., llama3.2)
+ollama pull llama3.2
+
+# Start Ollama (usually starts automatically)
+ollama serve
 ```
 
 #### Automated Setup
@@ -119,17 +149,22 @@ npm run dev
 
 ## 🎬 How to Use
 
-1. **Open the application** at `http://localhost:3000`
-2. **Grant camera/microphone permissions** when prompted
-3. **Record a video:**
+1. **Start Ollama** (for thematic coding):
+   ```bash
+   ollama serve
+   ```
+2. **Open the application** at `http://localhost:3000`
+3. **Grant camera/microphone permissions** when prompted
+4. **Record a video:**
    - Click "Start Recording"
    - Speak and show emotions to camera
    - Click "Stop" when done (30-60 seconds recommended)
-4. **Analyze:**
+5. **Analyze:**
    - Click "Analyze Emotion"
    - Wait for processing (30-60 seconds)
-5. **View results:**
+6. **View results:**
    - See full speech transcription with timestamps
+   - View LLM-extracted themes from the transcription
    - View detected emotions over time
    - Check dominant emotion statistics
 
@@ -148,10 +183,46 @@ SENSEVOICE_USE_ITN=True               # Inverse Text Normalization
 DEEPFACE_BACKEND=opencv               # Options: opencv, ssd, mtcnn, retinaface
 FRAME_SAMPLE_RATE=30                  # Analyze every Nth frame
 
+# Ollama Configuration (for thematic coding)
+OLLAMA_BASE_URL=http://localhost:11434  # Ollama API endpoint
+OLLAMA_MODEL=llama3.2                   # Model to use (llama3.2, llama3, mistral, etc.)
+OLLAMA_TIMEOUT=120.0                    # Timeout in seconds
+
 # Server
 PORT=8000
 HOST=0.0.0.0
 ```
+
+### Ollama Models for Thematic Coding
+
+The application uses Ollama with local LLMs for thematic analysis. You can choose different models based on your needs:
+
+**Recommended Models:**
+
+```bash
+# Llama 3.2 (3B) - Fast and efficient (Default)
+ollama pull llama3.2
+OLLAMA_MODEL=llama3.2
+
+# Llama 3.1 (8B) - Better quality
+ollama pull llama3.1
+OLLAMA_MODEL=llama3.1
+
+# Mistral (7B) - Good balance
+ollama pull mistral
+OLLAMA_MODEL=mistral
+
+# Gemma 2 (9B) - Google's model
+ollama pull gemma2
+OLLAMA_MODEL=gemma2
+```
+
+**Thematic Coding Features:**
+- Automatically identifies 3-8 main themes from transcriptions
+- Provides confidence scores for each theme
+- Extracts relevant quotes supporting each theme
+- Generates a summary of the overall content
+- Runs completely locally (no data sent to external APIs)
 
 ### Performance Tuning
 
@@ -160,12 +231,16 @@ HOST=0.0.0.0
 SENSEVOICE_DEVICE=cuda:0  # Use GPU if available
 FRAME_SAMPLE_RATE=60
 DEEPFACE_BACKEND=opencv
+OLLAMA_MODEL=llama3.2     # Smaller model
+OLLAMA_TIMEOUT=60.0
 ```
 
 **For better accuracy:**
 ```bash
 FRAME_SAMPLE_RATE=15
 DEEPFACE_BACKEND=retinaface
+OLLAMA_MODEL=llama3.1     # Larger model
+OLLAMA_TIMEOUT=180.0
 ```
 
 **Balanced (recommended):**
@@ -173,6 +248,8 @@ DEEPFACE_BACKEND=retinaface
 SENSEVOICE_DEVICE=cpu
 FRAME_SAMPLE_RATE=30
 DEEPFACE_BACKEND=opencv
+OLLAMA_MODEL=llama3.2
+OLLAMA_TIMEOUT=120.0
 ```
 
 ## 📚 API Documentation
@@ -239,6 +316,21 @@ Get analysis results.
     "emotion": "happy",
     "percentage": 65.5
   },
+  "thematic_analysis": {
+    "themes": [
+      {
+        "name": "Personal Growth",
+        "description": "Discussion about self-improvement and learning",
+        "quotes": [
+          "I've been trying to improve myself every day",
+          "Learning new things makes me feel accomplished"
+        ],
+        "confidence": 0.85
+      }
+    ],
+    "summary": "The speaker discusses personal development and the importance of continuous learning.",
+    "success": true
+  },
   "created_at": "2024-01-01T00:00:00"
 }
 ```
@@ -292,8 +384,31 @@ Frontend Displays Results
 - Use HTTPS or localhost
 - Check if camera is in use by another app
 
+### Ollama Issues
+```bash
+# Check if Ollama is running
+curl http://localhost:11434/api/version
+
+# Start Ollama manually
+ollama serve
+
+# Check if model is available
+ollama list
+
+# Pull the model if missing
+ollama pull llama3.2
+
+# Test the model
+ollama run llama3.2 "Hello, how are you?"
+```
+
+**Common Ollama Errors:**
+- `Failed to connect to Ollama`: Make sure Ollama is running (`ollama serve`)
+- `Model not found`: Pull the model first (`ollama pull llama3.2`)
+- `Request timeout`: Increase `OLLAMA_TIMEOUT` or use a smaller model
+
 ### Slow Processing
-- Use smaller Whisper model: `WHISPER_MODEL=tiny`
+- Use smaller model: `OLLAMA_MODEL=llama3.2`
 - Increase frame sampling: `FRAME_SAMPLE_RATE=60`
 - Record shorter videos (30-60 seconds)
 
@@ -307,6 +422,9 @@ python --version  # Needs 3.9+
 
 # Reinstall dependencies
 pip install --force-reinstall -r requirements.txt
+
+# Check Ollama connection
+curl http://localhost:11434/api/tags
 ```
 
 ### Frontend Issues
@@ -403,7 +521,9 @@ const getResults = async (id) => {
 **Backend:**
 - Python 3.9+, FastAPI, Uvicorn
 - SenseVoice (FunASR), DeepFace
+- Ollama (local LLM inference)
 - FFmpeg, OpenCV, TensorFlow, PyTorch
+- httpx (async HTTP client)
 
 **DevOps:**
 - Docker, Docker Compose

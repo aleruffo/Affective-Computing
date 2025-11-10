@@ -163,7 +163,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col items-center justify-center py-16">
           <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-300 text-lg">Loading saved videos...</p>
+          <p className="text-gray-300 text-lg">Loading saved entries...</p>
         </div>
       </div>
     );
@@ -189,7 +189,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8 px-4">
         <h2 className="text-3xl font-bold text-gray-100 flex items-center gap-2">
-          📁 Saved Videos
+          📁 Saved Entries
         </h2>
         <button 
           onClick={fetchSavedVideos} 
@@ -201,7 +201,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
 
       {videos.length === 0 ? (
         <div className="bg-gray-800 rounded-xl p-16 text-center shadow-inner border border-gray-700">
-          <p className="text-gray-200 text-2xl mb-2">📭 No saved videos yet</p>
+          <p className="text-gray-200 text-2xl mb-2">📭 No saved entries yet</p>
           <p className="text-gray-400 text-lg">Record and analyze a video to see it here</p>
         </div>
       ) : (

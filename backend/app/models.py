@@ -49,6 +49,19 @@ class DominantEmotion(BaseModel):
     percentage: float
 
 
+class Theme(BaseModel):
+    """A single theme extracted from transcription"""
+    name: str
+
+
+class ThematicAnalysis(BaseModel):
+    """Complete thematic analysis result"""
+    themes: List[Theme] = []
+    summary: str
+    success: bool = True
+    error: Optional[str] = None
+
+
 class AnalysisResponse(BaseModel):
     """Complete analysis response"""
     id: str
@@ -58,6 +71,7 @@ class AnalysisResponse(BaseModel):
     dominant_facial_emotion: Optional[DominantEmotion] = None
     speech_emotions: Optional[List[SpeechEmotionData]] = None
     audio_events: Optional[List[str]] = None
+    thematic_analysis: Optional[ThematicAnalysis] = None
     created_at: datetime
     error: Optional[str] = None
 

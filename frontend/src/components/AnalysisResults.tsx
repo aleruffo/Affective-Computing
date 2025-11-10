@@ -4,6 +4,7 @@ import { AnalysisResultsProps } from '../types';
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     transcription: true,
+    thematicAnalysis: true,
     speechEmotions: true,
     audioEvents: true,
     facialEmotions: true,
@@ -128,6 +129,107 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Thematic Analysis Section */}
+            {result.thematic_analysis && result.thematic_analysis.themes && result.thematic_analysis.themes.length > 0 && (
+              <div className="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <button
+                  onClick={() => toggleSection('thematicAnalysis')}
+                  className="w-full p-6 flex items-center justify-between hover:bg-gray-750 transition-colors rounded-xl"
+                >
+                  <h3 className="text-2xl font-semibold text-gray-100 flex items-center gap-2">
+                    <span className="text-3xl">🧠</span>
+                    Thematic Analysis
+                  </h3>
+                  <svg
+                    className={`w-6 h-6 text-gray-400 transition-transform ${expandedSections.thematicAnalysis ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {expandedSections.thematicAnalysis && (
+                  <div className="px-6 pb-6 space-y-4">
+                    {/* Summary */}
+                    {result.thematic_analysis.summary && (
+                      <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/30 rounded-lg p-5 border border-emerald-800/50">
+                        <h4 className="text-lg font-semibold text-gray-200 mb-2 flex items-center gap-2">
+                          <span className="text-2xl">📝</span>
+                          Summary
+                        </h4>
+                        <p className="text-gray-100 leading-relaxed">{result.thematic_analysis.summary}</p>
+                      </div>
+                    )}
+
+                    {/* Themes */}
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
+                        <span className="text-2xl">🏷️</span>
+                        Identified Themes ({result.thematic_analysis.themes.length})
+                      </h4>
+                      
+                      <div className="space-y-4">
+                        {result.thematic_analysis.themes.map((theme, index) => (
+                          <div 
+                            key={index} 
+                            className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-lg p-5 border border-indigo-800/50 hover:shadow-lg transition-shadow"
+                          >
+                            {/* Theme Header */}
+                            <div className="flex items-start justify-between mb-3 flex-wrap gap-2">
+                              <h5 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+                                <span className="text-2xl">🎯</span>
+                                {theme.name}
+                              </h5>
+                              <div className="flex items-center gap-2">
+                                <div className="h-2 w-24 bg-gray-700 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                                    style={{ width: `${theme.confidence * 100}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm font-semibold text-indigo-400">
+                                  {(theme.confidence * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Theme Description */}
+                            <p className="text-gray-200 mb-4 leading-relaxed">{theme.description}</p>
+
+                            {/* Quotes */}
+                            {theme.quotes && theme.quotes.length > 0 && (
+                              <div className="space-y-2">
+                                <h6 className="text-sm font-semibold text-gray-300 mb-2">Supporting Quotes:</h6>
+                                {theme.quotes.map((quote, qIndex) => (
+                                  <div 
+                                    key={qIndex}
+                                    className="bg-gray-800/50 border-l-4 border-indigo-600 p-3 rounded-r-lg"
+                                  >
+                                    <p className="text-gray-200 italic">"{quote}"</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {result.thematic_analysis.error && (
+                      <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-4">
+                        <p className="text-red-400">
+                          <span className="font-semibold">Note:</span> {result.thematic_analysis.error}
+                        </p>
                       </div>
                     )}
                   </div>
