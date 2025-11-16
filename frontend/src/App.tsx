@@ -19,6 +19,16 @@ function App() {
     setAnalysisResult(null)
   }
 
+  // If there's an analysis result, show it as a separate page
+  if (analysisResult) {
+    return (
+      <AnalysisResults 
+        result={analysisResult} 
+        onClose={() => setAnalysisResult(null)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 to-gray-800">
       <header className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-8 shadow-lg">
@@ -70,13 +80,6 @@ function App() {
           />
         )}
       </main>
-
-      {analysisResult && (
-        <AnalysisResults 
-          result={analysisResult} 
-          onClose={() => setAnalysisResult(null)}
-        />
-      )}
 
       <footer className="bg-gray-800/90 text-center p-6 text-gray-400 shadow-inner border-t border-gray-700">
         <p>Powered by SenseVoice & DeepFace</p>

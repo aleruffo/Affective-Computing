@@ -29,7 +29,7 @@ services:
       - WHISPER_MODEL=base
       - WHISPER_DEVICE=cpu
       - DEEPFACE_BACKEND=opencv
-      - FRAME_SAMPLE_RATE=30
+      - FRAME_SAMPLE_RATE=10
       # Ollama configuration - use host.docker.internal to access host machine
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=llama3.2

@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Union
 from pathlib import Path
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -10,13 +11,22 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api"
     PROJECT_NAME: str = "Affective Computing API"
     
-    # CORS
-    CORS_ORIGINS: List[str] = [
+    # CORS - can be either a comma-separated string or a list
+    CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
     ]
+    
+    @field_validator('CORS_ORIGINS', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        """Parse CORS_ORIGINS from comma-separated string or list"""
+        if isinstance(v, str):
+            # Split by comma and strip whitespace
+            return [origin.strip() for origin in v.split(',') if origin.strip()]
+        return v
     
     # File Storage
     UPLOAD_DIR: str = "uploads"
@@ -42,6 +52,10 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://localhost:11434"  # Default Ollama endpoint
     OLLAMA_MODEL: str = "llama3.2"  # Default model, can be changed to llama3, mistral, etc.
     OLLAMA_TIMEOUT: float = 120.0  # Timeout in seconds
+    
+    # Server Configuration (optional, mainly for documentation)
+    PORT: int = 8000
+    HOST: str = "0.0.0.0"
     
     class Config:
         env_file = ".env"
