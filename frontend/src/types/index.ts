@@ -74,6 +74,8 @@ export interface VideoRecorderProps {
   onAnalysisComplete: (result: AnalysisResponse) => void;
   onAnalysisStart: () => void;
   isAnalyzing: boolean;
+  onBack: () => void;
+  onViewArchive: () => void;
 }
 
 export interface AnalysisResultsProps {
@@ -93,4 +95,57 @@ export interface RecordingState {
   isPaused: boolean;
   duration: number;
   blob: Blob | null;
+}
+
+// User Profile Types
+export interface UserProfile {
+  name: string;
+  goals?: string | null;
+  preferences?: {
+    emotionFocus?: string[];
+    journalFrequency?: string;
+  } | null;
+}
+
+export interface UserProfileResponse extends UserProfile {
+  created_at: string;
+  updated_at: string;
+}
+
+// Dashboard Types
+export interface SavedVideo {
+  id: string;
+  filename: string;
+  size: number;
+  created_at: string;
+  has_analysis: boolean;
+  analysis_status?: string;
+}
+
+export interface DashboardStats {
+  total_entries: number;
+  emotions_distribution: Record<string, number>;
+  recent_entries: SavedVideo[];
+  all_entries: SavedVideo[];
+  total_recording_time: number;
+}
+
+export interface CalendarEntry {
+  date: string;
+  count: number;
+}
+
+export interface CalendarResponse {
+  entries: CalendarEntry[];
+}
+
+export interface EmotionTrend {
+  date: string;
+  emotion: string;
+  average_confidence: number;
+  count: number;
+}
+
+export interface EmotionTrendsResponse {
+  trends: EmotionTrend[];
 }

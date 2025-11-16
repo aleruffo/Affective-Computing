@@ -1,13 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import VideoRecorder from './components/VideoRecorder'
 import AnalysisResults from './components/AnalysisResults.tsx'
 import SavedVideos from './components/SavedVideos.tsx'
+import Dashboard from './components/Dashboard.tsx'
+import Onboarding from './components/Onboarding.tsx'
 import { AnalysisResponse } from './types'
+
+type ViewType = 'onboarding' | 'dashboard' | 'record' | 'saved';
 
 function App() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResponse | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [activeTab, setActiveTab] = useState<'record' | 'saved'>('record')
+  const [currentView, setCurrentView] = useState<ViewType>('dashboard')
+
+  useEffect(() => {
+    // Check if onboarding has been completed
+    const onboardingComplete = localStorage.getItem('onboarding_complete');
+    if (!onboardingComplete) {
+      setCurrentView('onboarding');
+    } else {
+      setCurrentView('dashboard');
+    }
+  }, []);
 
   const handleAnalysisComplete = (result: AnalysisResponse) => {
     setAnalysisResult(result)
@@ -17,6 +31,10 @@ function App() {
   const handleAnalysisStart = () => {
     setIsAnalyzing(true)
     setAnalysisResult(null)
+  }
+
+  const handleOnboardingComplete = () => {
+    setCurrentView('dashboard');
   }
 
   // If there's an analysis result, show it as a separate page
@@ -29,62 +47,49 @@ function App() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-eink-white">
-      <header className="bg-eink-paper border-b-2 border-eink-black p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-eink-black text-center tracking-tight font-mono">
-            JOURNALING ASSISTANT
-          </h1>
-        </div>
-      </header>
+  // Show onboarding if not completed
+  if (currentView === 'onboarding') {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
 
-      <nav className="bg-white border-b-2 border-eink-black sticky top-0 z-50 flex justify-center">
-        <button 
-          className={`flex-1 max-w-xs px-6 py-4 text-base font-bold font-mono border-r-2 border-eink-black ${
-            activeTab === 'record' 
-              ? 'bg-eink-black text-white' 
-              : 'bg-white text-eink-black hover:bg-eink-white'
-          }`}
-          onClick={() => setActiveTab('record')}
-        >
-          [ NEW ENTRY ]
-        </button>
-        <button 
-          className={`flex-1 max-w-xs px-6 py-4 text-base font-bold font-mono ${
-            activeTab === 'saved' 
-              ? 'bg-eink-black text-white' 
-              : 'bg-white text-eink-black hover:bg-eink-white'
-          }`}
-          onClick={() => setActiveTab('saved')}
-        >
-          [ ARCHIVE ]
-        </button>
-      </nav>
+  // Show dashboard
+  if (currentView === 'dashboard') {
+    return (
+      <Dashboard 
+        onNewEntry={() => setCurrentView('record')}
+        onViewArchive={() => setCurrentView('saved')}
+      />
+    );
+  }
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col gap-6">
-        {activeTab === 'record' ? (
-          <>
-            <VideoRecorder 
-              onAnalysisComplete={handleAnalysisComplete}
-              onAnalysisStart={handleAnalysisStart}
-              isAnalyzing={isAnalyzing}
-            />
-          </>
-        ) : (
-          <SavedVideos 
-            onAnalysisComplete={handleAnalysisComplete}
-            onAnalysisStart={handleAnalysisStart}
-            isAnalyzing={isAnalyzing}
-          />
-        )}
-      </main>
+  // Show record view
+  if (currentView === 'record') {
+    return (
+      <VideoRecorder 
+        onAnalysisComplete={handleAnalysisComplete}
+        onAnalysisStart={handleAnalysisStart}
+        isAnalyzing={isAnalyzing}
+        onBack={() => setCurrentView('dashboard')}
+        onViewArchive={() => setCurrentView('saved')}
+      />
+    );
+  }
 
-      <footer className="bg-white text-center p-4 text-eink-gray border-t-2 border-eink-black">
-        <p className="font-mono text-sm">POWERED BY SENSEVOICE & DEEPFACE</p>
-      </footer>
-    </div>
-  )
+  // Show saved videos view
+  if (currentView === 'saved') {
+    return (
+      <SavedVideos 
+        onAnalysisComplete={handleAnalysisComplete}
+        onAnalysisStart={handleAnalysisStart}
+        isAnalyzing={isAnalyzing}
+        onBack={() => setCurrentView('dashboard')}
+        onNewEntry={() => setCurrentView('record')}
+      />
+    );
+  }
+
+  // This should never be reached
+  return null;
 }
 
 export default App

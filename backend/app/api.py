@@ -12,16 +12,27 @@ from app.models import (
     AnalysisResponse, 
     AnalysisStatus,
     SavedVideosResponse,
-    DeleteResponse
+    DeleteResponse,
+    UserProfile,
+    UserProfileResponse,
+    DashboardStats,
+    CalendarResponse,
+    CalendarEntry,
+    EmotionTrendsResponse,
+    EmotionTrend
 )
 from app.services.video_processor import VideoProcessor
 from app.config import settings
+from collections import defaultdict, Counter
+from datetime import timedelta
 
 
 router = APIRouter()
 
 # In-memory storage for analysis results (use database in production)
 analysis_results = {}
+
+USER_PROFILE_FILE = Path(settings.UPLOAD_DIR) / "user_profile.json"
 
 
 def save_analysis_to_file(analysis_id: str, data: dict):
@@ -67,6 +78,48 @@ def load_analysis_from_file(analysis_id: str) -> dict:
         return data
     except Exception as e:
         print(f"Failed to load analysis from file: {e}")
+        return None
+
+
+def save_user_profile(profile_data: dict):
+    """Save user profile to JSON file"""
+    try:
+        upload_dir = Path(settings.UPLOAD_DIR)
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Convert datetime objects to ISO format strings
+        serializable_data = {}
+        for key, value in profile_data.items():
+            if isinstance(value, datetime):
+                serializable_data[key] = value.isoformat()
+            else:
+                serializable_data[key] = value
+        
+        with open(USER_PROFILE_FILE, 'w') as f:
+            json.dump(serializable_data, f, indent=2)
+    except Exception as e:
+        print(f"Failed to save user profile: {e}")
+        raise
+
+
+def load_user_profile() -> dict:
+    """Load user profile from JSON file"""
+    try:
+        if not USER_PROFILE_FILE.exists():
+            return None
+        
+        with open(USER_PROFILE_FILE, 'r') as f:
+            data = json.load(f)
+        
+        # Convert ISO format strings back to datetime
+        if "created_at" in data:
+            data["created_at"] = datetime.fromisoformat(data["created_at"])
+        if "updated_at" in data:
+            data["updated_at"] = datetime.fromisoformat(data["updated_at"])
+        
+        return data
+    except Exception as e:
+        print(f"Failed to load user profile: {e}")
         return None
 
 
@@ -385,3 +438,308 @@ async def delete_video(video_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete video: {str(e)}")
+
+
+# User Profile Endpoints
+
+@router.post("/user/setup", response_model=UserProfileResponse)
+async def setup_user_profile(profile: UserProfile):
+    """
+    Create or update user profile during onboarding
+    """
+    try:
+        profile_data = {
+            "name": profile.name,
+            "goals": profile.goals,
+            "preferences": profile.preferences,
+            "created_at": profile.created_at,
+            "updated_at": datetime.now()
+        }
+        
+        save_user_profile(profile_data)
+        
+        return UserProfileResponse(
+            name=profile_data["name"],
+            goals=profile_data["goals"],
+            preferences=profile_data["preferences"],
+            created_at=profile_data["created_at"],
+            updated_at=profile_data["updated_at"]
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save profile: {str(e)}")
+
+
+@router.get("/user/profile", response_model=UserProfileResponse)
+async def get_user_profile():
+    """
+    Get user profile
+    """
+    try:
+        profile_data = load_user_profile()
+        
+        if profile_data is None:
+            raise HTTPException(status_code=404, detail="User profile not found")
+        
+        return UserProfileResponse(
+            name=profile_data["name"],
+            goals=profile_data.get("goals"),
+            preferences=profile_data.get("preferences"),
+            created_at=profile_data["created_at"],
+            updated_at=profile_data["updated_at"]
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load profile: {str(e)}")
+
+
+@router.put("/user/profile", response_model=UserProfileResponse)
+async def update_user_profile(profile: UserProfile):
+    """
+    Update user profile
+    """
+    try:
+        existing_profile = load_user_profile()
+        
+        if existing_profile is None:
+            # Create new profile if it doesn't exist
+            created_at = datetime.now()
+        else:
+            created_at = existing_profile["created_at"]
+        
+        profile_data = {
+            "name": profile.name,
+            "goals": profile.goals,
+            "preferences": profile.preferences,
+            "created_at": created_at,
+            "updated_at": datetime.now()
+        }
+        
+        save_user_profile(profile_data)
+        
+        return UserProfileResponse(
+            name=profile_data["name"],
+            goals=profile_data["goals"],
+            preferences=profile_data["preferences"],
+            created_at=profile_data["created_at"],
+            updated_at=profile_data["updated_at"]
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
+
+
+@router.delete("/user/profile")
+async def delete_user_profile():
+    """
+    Delete user profile (for testing/debug purposes)
+    """
+    try:
+        if USER_PROFILE_FILE.exists():
+            USER_PROFILE_FILE.unlink()
+            return {"message": "User profile deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="User profile not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete profile: {str(e)}")
+
+
+# Dashboard Endpoints
+
+@router.get("/dashboard/stats", response_model=DashboardStats)
+async def get_dashboard_stats():
+    """
+    Get dashboard statistics including emotion distribution and recent entries
+    """
+    try:
+        upload_dir = Path(settings.UPLOAD_DIR)
+        results_dir = upload_dir / "results"
+        
+        # Load all analysis results
+        all_analyses = []
+        videos = []
+        emotion_counts = Counter()
+        total_recording_time = 0.0
+        
+        for file_path in upload_dir.glob("*.webm"):
+            try:
+                video_id = file_path.stem
+                stats = file_path.stat()
+                
+                # Check if we have analysis results
+                analysis = analysis_results.get(video_id)
+                if analysis is None:
+                    analysis = load_analysis_from_file(video_id)
+                    if analysis:
+                        analysis_results[video_id] = analysis
+                
+                video_data = {
+                    "id": video_id,
+                    "filename": file_path.name,
+                    "size": stats.st_size,
+                    "created_at": datetime.fromtimestamp(stats.st_ctime),
+                    "has_analysis": analysis is not None and analysis.get("status") == AnalysisStatus.COMPLETED,
+                    "analysis_status": analysis.get("status") if analysis else None,
+                }
+                videos.append(video_data)
+                
+                # Count emotions from completed analyses
+                if analysis and analysis.get("status") == AnalysisStatus.COMPLETED:
+                    all_analyses.append(analysis)
+                    
+                    # Count facial emotions
+                    if analysis.get("facial_emotions"):
+                        for emotion_data in analysis["facial_emotions"]:
+                            emotion_counts[emotion_data["emotion"]] += 1
+                    
+                    # Count speech emotions
+                    if analysis.get("speech_emotions"):
+                        for emotion_data in analysis["speech_emotions"]:
+                            emotion_counts[emotion_data["emotion"]] += 1
+                    
+                    # Calculate recording time from facial emotions timestamps
+                    if analysis.get("facial_emotions") and len(analysis["facial_emotions"]) > 0:
+                        max_timestamp = max(e["timestamp"] for e in analysis["facial_emotions"])
+                        total_recording_time += max_timestamp
+                    
+            except Exception as e:
+                print(f"Error processing video {file_path}: {e}")
+                continue
+        
+        # Sort videos by creation time, newest first
+        videos.sort(key=lambda x: x["created_at"], reverse=True)
+        
+        # Get 5 most recent entries
+        recent_entries = videos[:5]
+        
+        return DashboardStats(
+            total_entries=len(videos),
+            emotions_distribution=dict(emotion_counts),
+            recent_entries=recent_entries,
+            all_entries=videos,
+            total_recording_time=total_recording_time
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get dashboard stats: {str(e)}")
+
+
+@router.get("/dashboard/calendar", response_model=CalendarResponse)
+async def get_calendar_data(year: int = None, month: int = None):
+    """
+    Get calendar data showing which dates have entries
+    """
+    try:
+        upload_dir = Path(settings.UPLOAD_DIR)
+        
+        # Dictionary to count entries per date
+        date_counts = defaultdict(int)
+        
+        for file_path in upload_dir.glob("*.webm"):
+            try:
+                stats = file_path.stat()
+                created_at = datetime.fromtimestamp(stats.st_ctime)
+                
+                # Filter by year/month if provided
+                if year and created_at.year != year:
+                    continue
+                if month and created_at.month != month:
+                    continue
+                
+                # Get date in ISO format (YYYY-MM-DD)
+                date_key = created_at.date().isoformat()
+                date_counts[date_key] += 1
+                
+            except Exception as e:
+                print(f"Error processing video {file_path}: {e}")
+                continue
+        
+        # Convert to list of CalendarEntry objects
+        entries = [
+            CalendarEntry(date=date, count=count)
+            for date, count in sorted(date_counts.items())
+        ]
+        
+        return CalendarResponse(entries=entries)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get calendar data: {str(e)}")
+
+
+@router.get("/dashboard/trends", response_model=EmotionTrendsResponse)
+async def get_emotion_trends(days: int = 30):
+    """
+    Get emotion trends over time (aggregated by date)
+    """
+    try:
+        upload_dir = Path(settings.UPLOAD_DIR)
+        
+        # Dictionary to store emotion data per date
+        # Structure: {date: {emotion: [confidence_values]}}
+        date_emotions = defaultdict(lambda: defaultdict(list))
+        
+        for file_path in upload_dir.glob("*.webm"):
+            try:
+                video_id = file_path.stem
+                stats = file_path.stat()
+                created_at = datetime.fromtimestamp(stats.st_ctime)
+                date_key = created_at.date().isoformat()
+                
+                # Load analysis
+                analysis = analysis_results.get(video_id)
+                if analysis is None:
+                    analysis = load_analysis_from_file(video_id)
+                    if analysis:
+                        analysis_results[video_id] = analysis
+                
+                if not analysis or analysis.get("status") != AnalysisStatus.COMPLETED:
+                    continue
+                
+                # Aggregate facial emotions
+                if analysis.get("facial_emotions"):
+                    for emotion_data in analysis["facial_emotions"]:
+                        emotion = emotion_data["emotion"]
+                        confidence = emotion_data["confidence"]
+                        date_emotions[date_key][emotion].append(confidence)
+                
+                # Aggregate speech emotions
+                if analysis.get("speech_emotions"):
+                    for emotion_data in analysis["speech_emotions"]:
+                        emotion = emotion_data["emotion"]
+                        confidence = emotion_data["confidence"]
+                        date_emotions[date_key][emotion].append(confidence)
+                
+            except Exception as e:
+                print(f"Error processing video {file_path}: {e}")
+                continue
+        
+        # Calculate averages and create trend objects
+        trends = []
+        for date, emotions in sorted(date_emotions.items()):
+            for emotion, confidences in emotions.items():
+                avg_confidence = sum(confidences) / len(confidences)
+                trends.append(
+                    EmotionTrend(
+                        date=date,
+                        emotion=emotion,
+                        average_confidence=avg_confidence,
+                        count=len(confidences)
+                    )
+                )
+        
+        # Sort by date, most recent first
+        trends.sort(key=lambda x: x.date, reverse=True)
+        
+        # Limit to requested number of days
+        if days:
+            cutoff_date = (datetime.now() - timedelta(days=days)).date().isoformat()
+            trends = [t for t in trends if t.date >= cutoff_date]
+        
+        return EmotionTrendsResponse(trends=trends)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get emotion trends: {str(e)}")

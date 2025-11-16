@@ -107,3 +107,54 @@ class DeleteResponse(BaseModel):
     """Response for delete operation"""
     message: str
     id: str
+
+
+class UserProfile(BaseModel):
+    """User profile information"""
+    name: str
+    goals: Optional[str] = None
+    preferences: Optional[dict] = None
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+
+class UserProfileResponse(BaseModel):
+    """User profile response"""
+    name: str
+    goals: Optional[str] = None
+    preferences: Optional[dict] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class DashboardStats(BaseModel):
+    """Dashboard statistics"""
+    total_entries: int
+    emotions_distribution: dict  # {"happy": 5, "sad": 3, ...}
+    recent_entries: List[SavedVideo]
+    all_entries: List[SavedVideo]  # All video entries
+    total_recording_time: float  # in seconds
+
+
+class CalendarEntry(BaseModel):
+    """Calendar entry for a specific date"""
+    date: str  # ISO date format (YYYY-MM-DD)
+    count: int  # Number of entries on this date
+
+
+class CalendarResponse(BaseModel):
+    """Calendar data response"""
+    entries: List[CalendarEntry]
+
+
+class EmotionTrend(BaseModel):
+    """Emotion trend data point"""
+    date: str  # ISO date format (YYYY-MM-DD)
+    emotion: str
+    average_confidence: float
+    count: int
+
+
+class EmotionTrendsResponse(BaseModel):
+    """Emotion trends response"""
+    trends: List[EmotionTrend]

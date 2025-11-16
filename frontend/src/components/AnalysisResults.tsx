@@ -168,36 +168,44 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
             <h3 className="text-xl font-bold text-eink-black font-mono mb-6 border-b-2 border-eink-black pb-2">
               THEMATIC ANALYSIS
             </h3>
-            {result.thematic_analysis.summary && (
-              <div className="bg-eink-white border-2 border-eink-black p-4 mb-6 dither-pattern">
-                <p className="text-sm text-eink-black leading-relaxed font-mono">{result.thematic_analysis.summary}</p>
-              </div>
-            )}
             
-            {/* Network Graph using React Flow */}
-            {nodes.length > 0 && (
-              <div className="w-full border-2 border-eink-black" style={{ height: '600px' }}>
-                <ReactFlow
-                  nodes={nodes}
-                  edges={edges}
-                  nodesDraggable={false}
-                  nodesConnectable={false}
-                  elementsSelectable={false}
-                  zoomOnScroll={false}
-                  panOnDrag={false}
-                  fitView
-                  fitViewOptions={{
-                    padding: 0.2,
-                  }}
-                  style={{
-                    background: '#f5f5f5',
-                  }}
-                >
-                  <Background color="#cccccc" gap={16} />
-                  <Controls />
-                </ReactFlow>
-              </div>
-            )}
+            {/* Graph and Summary Side by Side */}
+            <div className="flex gap-6">
+              {/* Network Graph - 2/3 width */}
+              {nodes.length > 0 && (
+                <div className="w-2/3 border-2 border-eink-black" style={{ height: '600px' }}>
+                  <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    nodesDraggable={false}
+                    nodesConnectable={false}
+                    elementsSelectable={false}
+                    zoomOnScroll={false}
+                    panOnDrag={false}
+                    fitView
+                    fitViewOptions={{
+                      padding: 0.2,
+                    }}
+                    style={{
+                      background: '#f5f5f5',
+                    }}
+                  >
+                    <Background color="#cccccc" gap={16} />
+                    <Controls />
+                  </ReactFlow>
+                </div>
+              )}
+              
+              {/* Summary - 1/3 width */}
+              {result.thematic_analysis.summary && (
+                <div className="w-1/3">
+                  <div className="bg-eink-white border-2 border-eink-black p-4 h-full dither-pattern">
+                    <h4 className="text-sm font-bold text-eink-black font-mono mb-3 border-b border-eink-black pb-2">LLM SUMMARY</h4>
+                    <p className="text-sm text-eink-black leading-relaxed font-mono">{result.thematic_analysis.summary}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
