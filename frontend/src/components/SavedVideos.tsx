@@ -162,8 +162,8 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
     return (
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-300 text-lg">Loading saved entries...</p>
+          <div className="w-12 h-12 border-4 border-eink-black border-t-transparent mb-4"></div>
+          <p className="text-eink-black text-base font-mono">LOADING...</p>
         </div>
       </div>
     );
@@ -172,13 +172,13 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
   if (error) {
     return (
       <div className="w-full max-w-7xl mx-auto">
-        <div className="bg-yellow-900/30 border-2 border-yellow-600 rounded-xl p-8 text-center">
-          <p className="text-yellow-200 text-lg mb-4">⚠️ {error}</p>
+        <div className="bg-white border-4 border-eink-black p-8 text-center dither-pattern">
+          <p className="text-eink-black text-base mb-4 font-mono font-bold">[!] {error}</p>
           <button 
             onClick={fetchSavedVideos} 
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
+            className="bg-eink-black text-white px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-white hover:text-eink-black"
           >
-            Try Again
+            [ TRY AGAIN ]
           </button>
         </div>
       </div>
@@ -187,27 +187,27 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8 px-4">
-        <h2 className="text-3xl font-bold text-gray-100 flex items-center gap-2">
-          📁 Saved Entries
+      <div className="flex justify-between items-center mb-6 px-2">
+        <h2 className="text-2xl font-bold text-eink-black font-mono">
+          ARCHIVE
         </h2>
         <button 
           onClick={fetchSavedVideos} 
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+          className="bg-white text-eink-black px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-eink-black hover:text-white"
         >
-          🔄 Refresh
+          [ REFRESH ]
         </button>
       </div>
 
       {videos.length === 0 ? (
-        <div className="bg-gray-800 rounded-xl p-16 text-center shadow-inner border border-gray-700">
-          <p className="text-gray-200 text-2xl mb-2">📭 No saved entries yet</p>
-          <p className="text-gray-400 text-lg">Record and analyze a video to see it here</p>
+        <div className="bg-white border-4 border-eink-black p-16 text-center dither-pattern">
+          <p className="text-eink-black text-xl mb-2 font-mono font-bold">NO ENTRIES</p>
+          <p className="text-eink-gray text-base font-mono">Record and analyze to create entries</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
           {videos.map((video) => (
-            <div key={video.id} className="bg-gray-800 rounded-xl shadow-lg p-6 border-2 border-gray-700 hover:border-purple-500 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+            <div key={video.id} className="bg-white border-2 border-eink-black p-6 hover:border-4">
               <div className="flex gap-4 mb-4">
                 <div className="flex-1 min-w-0">
                   {renamingVideo === video.id ? (
@@ -223,13 +223,13 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                             handleCancelRename();
                           }
                         }}
-                        className="flex-1 bg-gray-700 text-gray-100 px-3 py-1 rounded border border-gray-600 focus:border-purple-500 focus:outline-none"
+                        className="flex-1 bg-white text-eink-black px-3 py-2 border-2 border-eink-black focus:border-eink-black focus:outline-none font-mono"
                         autoFocus
                         placeholder="Enter new name"
                       />
                       <button
                         onClick={() => handleSaveRename(video.id)}
-                        className="text-green-400 hover:text-green-300 p-1"
+                        className="text-eink-black hover:bg-eink-white p-1 border-2 border-eink-black"
                         title="Save"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +238,7 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                       </button>
                       <button
                         onClick={handleCancelRename}
-                        className="text-red-400 hover:text-red-300 p-1"
+                        className="text-eink-black hover:bg-eink-white p-1 border-2 border-eink-black"
                         title="Cancel"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,10 +248,10 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-100 truncate flex-1">{video.filename}</h3>
+                      <h3 className="text-base font-bold text-eink-black truncate flex-1 font-mono">{video.filename}</h3>
                       <button
                         onClick={() => handleStartRename(video.id, video.filename)}
-                        className="text-gray-400 hover:text-purple-400 p-1 transition-colors"
+                        className="text-eink-gray hover:text-eink-black p-1"
                         title="Rename video"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,29 +260,29 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                       </button>
                     </div>
                   )}
-                  <div className="flex gap-2 text-sm text-gray-400 mb-2">
+                  <div className="flex gap-2 text-xs text-eink-gray mb-2 font-mono">
                     <span>{formatFileSize(video.size)}</span>
-                    <span>•</span>
+                    <span>|</span>
                     <span>{formatDate(video.created_at)}</span>
                   </div>
                   
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 {video.has_analysis ? (
                   <button
                     onClick={() => handleViewAnalysis(video.id)}
                     disabled={loadingAnalysis === video.id}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 bg-eink-black text-white px-4 py-2 border-2 border-eink-black font-bold font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white hover:text-eink-black flex items-center justify-center gap-2"
                   >
                     {loadingAnalysis === video.id ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Loading...
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent"></div>
+                        LOAD
                       </>
                     ) : (
                       <>
-                        View Analysis
+                        VIEW
                       </>
                     )}
                   </button>
@@ -290,16 +290,16 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                   <button
                     onClick={() => handleReanalyze(video.id)}
                     disabled={isAnalyzing && selectedVideo === video.id}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 bg-white text-eink-black px-4 py-2 border-2 border-eink-black font-bold font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-eink-black hover:text-white flex items-center justify-center gap-2"
                   >
                     {isAnalyzing && selectedVideo === video.id ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Analyzing...
+                        <div className="w-4 h-4 border-2 border-eink-black border-t-transparent"></div>
+                        PROC
                       </>
                     ) : (
                       <>
-                        Analyze
+                        ANALYZE
                       </>
                     )}
                   </button>
@@ -307,9 +307,9 @@ const SavedVideos: React.FC<SavedVideosProps> = ({
                 <button
                   onClick={() => handleDelete(video.id)}
                   disabled={isAnalyzing || loadingAnalysis === video.id}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-white text-eink-black px-4 py-2 border-2 border-eink-black font-bold font-mono text-sm hover:bg-eink-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Delete
+                  DELETE
                 </button>
               </div>
             </div>

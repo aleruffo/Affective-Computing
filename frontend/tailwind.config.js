@@ -7,18 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: '#667eea',
-          dark: '#764ba2',
-        },
-        secondary: {
-          DEFAULT: '#f5f7fa',
-          dark: '#c3cfe2',
-        },
+        'eink-black': '#1a1a1a',
+        'eink-dark': '#333333',
+        'eink-gray': '#666666',
+        'eink-light': '#cccccc',
+        'eink-white': '#e8e8e8',
+        'eink-paper': '#f5f5f5',
       },
-      backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'gradient-secondary': 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      fontFamily: {
+        'mono': ['Courier New', 'Courier', 'monospace'],
       },
     },
   },

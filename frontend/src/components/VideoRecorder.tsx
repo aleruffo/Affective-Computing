@@ -106,7 +106,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="relative bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+      <div className="relative bg-eink-black border-4 border-eink-black overflow-hidden">
         <video
           ref={videoRef}
           autoPlay
@@ -115,8 +115,8 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
           className="w-full aspect-video object-cover"
         />
         {recordingState.isRecording && (
-          <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg animate-pulse">
-            <span className="w-3 h-3 bg-white rounded-full animate-pulse"></span>
+          <div className="absolute top-4 left-4 flex items-center gap-2 bg-eink-black text-white px-4 py-2 border-2 border-white font-bold font-mono">
+            <span className="w-3 h-3 bg-white"></span>
             REC {formatDuration(recordingState.duration)}
           </div>
         )}
@@ -126,9 +126,9 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         {!recordingState.isRecording && !recordingState.blob && (
           <button 
             onClick={handleStartRecording} 
-            className="bg-gradient-primary text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+            className="bg-eink-black text-white px-8 py-4 border-2 border-eink-black font-bold font-mono text-base hover:bg-white hover:text-eink-black"
           >
-            📹 Start Recording
+            [ START RECORDING ]
           </button>
         )}
 
@@ -137,23 +137,23 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
             {!recordingState.isPaused ? (
               <button 
                 onClick={pauseRecording} 
-                className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                className="bg-white text-eink-black px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-eink-black hover:text-white"
               >
-                ⏸ Pause
+                [ PAUSE ]
               </button>
             ) : (
               <button 
                 onClick={resumeRecording} 
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                className="bg-eink-black text-white px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-white hover:text-eink-black"
               >
-                ▶️ Resume
+                [ RESUME ]
               </button>
             )}
             <button 
               onClick={stopRecording} 
-              className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              className="bg-eink-black text-white px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-white hover:text-eink-black"
             >
-              ⏹ Stop
+              [ STOP ]
             </button>
           </>
         )}
@@ -162,30 +162,30 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
           <>
             <button 
               onClick={handleAnalyze} 
-              className="bg-gradient-primary text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              className="bg-eink-black text-white px-8 py-4 border-2 border-eink-black font-bold font-mono text-base hover:bg-white hover:text-eink-black"
             >
-              🔍 Analyze Emotion
+              [ ANALYZE ]
             </button>
             <button 
               onClick={resetRecording} 
-              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              className="bg-white text-eink-black px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-eink-black hover:text-white"
             >
-              🔄 Record Again
+              [ RESET ]
             </button>
           </>
         )}
       </div>
 
       {uploadProgress && (
-        <div className="mt-6 flex items-center justify-center gap-3 text-purple-400 font-semibold">
-          <div className="w-6 h-6 border-3 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+        <div className="mt-6 flex items-center justify-center gap-3 text-eink-black font-bold font-mono">
+          <div className="w-6 h-6 border-2 border-eink-black border-t-transparent"></div>
           {uploadProgress}
         </div>
       )}
 
       {error && (
-        <div className="mt-6 bg-red-900/50 border-2 border-red-500 text-red-200 px-6 py-4 rounded-lg text-center font-semibold">
-          ⚠️ {error}
+        <div className="mt-6 bg-white border-4 border-eink-black text-eink-black px-6 py-4 text-center font-bold font-mono">
+          [!] {error}
         </div>
       )}
     </div>

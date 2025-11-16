@@ -30,40 +30,39 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 to-gray-800">
-      <header className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-8 shadow-lg">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 drop-shadow-md">
-            Journaling Assitant
+    <div className="min-h-screen flex flex-col bg-eink-white">
+      <header className="bg-eink-paper border-b-2 border-eink-black p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold text-eink-black text-center tracking-tight font-mono">
+            JOURNALING ASSISTANT
           </h1>
-
         </div>
       </header>
 
-      <nav className="bg-gray-800 shadow-md sticky top-0 z-50 flex justify-center border-b border-gray-700">
+      <nav className="bg-white border-b-2 border-eink-black sticky top-0 z-50 flex justify-center">
         <button 
-          className={`flex-1 max-w-xs px-8 py-5 text-lg font-semibold transition-all duration-300 border-b-3 ${
+          className={`flex-1 max-w-xs px-6 py-4 text-base font-bold font-mono border-r-2 border-eink-black ${
             activeTab === 'record' 
-              ? 'text-purple-400 border-b-purple-500 bg-gray-800 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gradient-to-r after:from-purple-500 after:to-indigo-500' 
-              : 'text-gray-400 border-b-transparent hover:bg-gray-750 hover:text-purple-300'
+              ? 'bg-eink-black text-white' 
+              : 'bg-white text-eink-black hover:bg-eink-white'
           }`}
           onClick={() => setActiveTab('record')}
         >
-          + Add New Entry
+          [ NEW ENTRY ]
         </button>
         <button 
-          className={`flex-1 max-w-xs px-8 py-5 text-lg font-semibold transition-all duration-300 border-b-3 ${
+          className={`flex-1 max-w-xs px-6 py-4 text-base font-bold font-mono ${
             activeTab === 'saved' 
-              ? 'text-purple-400 border-b-purple-500 bg-gray-800 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gradient-to-r after:from-purple-500 after:to-indigo-500' 
-              : 'text-gray-400 border-b-transparent hover:bg-gray-750 hover:text-purple-300'
+              ? 'bg-eink-black text-white' 
+              : 'bg-white text-eink-black hover:bg-eink-white'
           }`}
           onClick={() => setActiveTab('saved')}
         >
-          Saved Entries
+          [ ARCHIVE ]
         </button>
       </nav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-8 flex flex-col gap-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col gap-6">
         {activeTab === 'record' ? (
           <>
             <VideoRecorder 
@@ -81,8 +80,8 @@ function App() {
         )}
       </main>
 
-      <footer className="bg-gray-800/90 text-center p-6 text-gray-400 shadow-inner border-t border-gray-700">
-        <p>Powered by SenseVoice & DeepFace</p>
+      <footer className="bg-white text-center p-4 text-eink-gray border-t-2 border-eink-black">
+        <p className="font-mono text-sm">POWERED BY SENSEVOICE & DEEPFACE</p>
       </footer>
     </div>
   )

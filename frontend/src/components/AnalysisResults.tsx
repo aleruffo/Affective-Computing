@@ -28,19 +28,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
     return emojiMap[emotion.toLowerCase()] || '😐';
   };
 
-  const getEmotionColor = (emotion: string): string => {
-    const colorMap: Record<string, string> = {
-      happy: '#4caf50',
-      sad: '#2196f3',
-      angry: '#f44336',
-      fear: '#9c27b0',
-      surprise: '#ff9800',
-      disgust: '#795548',
-      neutral: '#9e9e9e',
-    };
-    return colorMap[emotion.toLowerCase()] || '#9e9e9e';
-  };
-
   // Calculate emotion distribution over time for timeline graph
   const emotionTimeline = facialEmotions.map(emotion => ({
     timestamp: emotion.timestamp,
@@ -65,22 +52,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
       position: { x: centerX, y: centerY },
       data: { 
         label: (
-          <div className="text-center px-6 py-4">
-            <div className="text-white font-bold text-lg">Main Themes</div>
-            <div className="text-purple-200 text-sm">{themes.length} found</div>
+          <div className="text-center px-6 py-4 font-mono">
+            <div className="text-eink-black font-bold text-base">THEMES</div>
+            <div className="text-eink-gray text-xs">{themes.length}</div>
           </div>
         )
       },
       style: {
-        background: 'linear-gradient(135deg, #9333ea 0%, #4f46e5 100%)',
+        background: '#e8e8e8',
         borderRadius: '50%',
         width: 150,
         height: 150,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        border: 'none',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+        border: '4px solid #1a1a1a',
       },
       draggable: false,
     };
@@ -98,20 +84,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
         position: { x: x - 100, y: y - 40 }, // Offset for node size
         data: {
           label: (
-            <div className="text-center px-4 py-3">
-              <div className="text-white font-bold text-sm">
+            <div className="text-center px-4 py-3 font-mono">
+              <div className="text-eink-black font-bold text-xs">
                 {theme.name.length > 25 ? theme.name.substring(0, 25) + '...' : theme.name}
               </div>
             </div>
           ),
         },
         style: {
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.9) 0%, rgba(109, 40, 217, 0.9) 100%)',
-          borderRadius: 12,
+          background: '#ffffff',
+          borderRadius: 0,
           width: 200,
           height: 80,
-          border: 'none',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+          border: '2px solid #1a1a1a',
         },
         draggable: false,
       };
@@ -127,13 +112,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
       type: 'straight',
       animated: false,
       style: {
-        stroke: 'rgba(147, 51, 234, 0.4)',
+        stroke: '#1a1a1a',
         strokeWidth: 2,
         strokeDasharray: '5,5',
       },
       markerEnd: {
         type: MarkerType.Arrow,
-        color: 'rgba(147, 51, 234, 0.4)',
+        color: '#1a1a1a',
       },
     }));
 
@@ -141,35 +126,33 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
   }, [result.thematic_analysis]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
+    <div className="min-h-screen bg-eink-white">
       {/* Header with Back Button */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 sticky top-0 z-10 shadow-lg">
+      <div className="bg-white border-b-2 border-eink-black sticky top-0 z-10">
         <div className="max-w-[1800px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {onClose && (
                 <button
                   onClick={onClose}
-                  className="flex items-center gap-2 text-gray-200 hover:text-white transition-colors bg-gray-800/50 hover:bg-gray-800 px-4 py-2 rounded-lg"
+                  className="flex items-center gap-2 text-eink-black hover:bg-eink-white px-4 py-2 border-2 border-eink-black font-bold font-mono"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  <span className="font-semibold">Back</span>
+                  <span>BACK</span>
                 </button>
               )}
-              <h1 className="text-3xl font-bold text-gray-100 flex items-center gap-3">
-                <span className="text-4xl">📊</span>
-                Analysis Dashboard
+              <h1 className="text-2xl font-bold text-eink-black font-mono">
+                ANALYSIS REPORT
               </h1>
             </div>
             {result.transcription && (
               <button
                 onClick={() => setShowTranscriptionModal(true)}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
+                className="flex items-center gap-2 bg-eink-black text-white px-6 py-3 border-2 border-eink-black font-bold font-mono hover:bg-white hover:text-eink-black"
               >
-                <span className="text-xl">🎤</span>
-                View Transcription
+                [ TRANSCRIPT ]
               </button>
             )}
           </div>
@@ -181,20 +164,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
 
         {/* Thematic Analysis Diagram */}
         {result.thematic_analysis && result.thematic_analysis.themes && result.thematic_analysis.themes.length > 0 && (
-          <div className="bg-gray-800 rounded-xl shadow-lg p-8">
-            <h3 className="text-2xl font-semibold text-gray-100 flex items-center gap-2 mb-6">
-              <span className="text-3xl">🧠</span>
-              Thematic Analysis
+          <div className="bg-white border-4 border-eink-black p-8">
+            <h3 className="text-xl font-bold text-eink-black font-mono mb-6 border-b-2 border-eink-black pb-2">
+              THEMATIC ANALYSIS
             </h3>
             {result.thematic_analysis.summary && (
-              <div className="bg-gradient-to-br from-emerald-900/20 to-teal-900/20 rounded-lg p-4 mb-6">
-                <p className="text-base text-gray-100 leading-relaxed">{result.thematic_analysis.summary}</p>
+              <div className="bg-eink-white border-2 border-eink-black p-4 mb-6 dither-pattern">
+                <p className="text-sm text-eink-black leading-relaxed font-mono">{result.thematic_analysis.summary}</p>
               </div>
             )}
             
             {/* Network Graph using React Flow */}
             {nodes.length > 0 && (
-              <div className="w-full" style={{ height: '600px' }}>
+              <div className="w-full border-2 border-eink-black" style={{ height: '600px' }}>
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
@@ -208,10 +190,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                     padding: 0.2,
                   }}
                   style={{
-                    background: 'transparent',
+                    background: '#f5f5f5',
                   }}
                 >
-                  <Background color="#4B5563" gap={16} />
+                  <Background color="#cccccc" gap={16} />
                   <Controls />
                 </ReactFlow>
               </div>
@@ -223,40 +205,38 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Speech Emotions */}
           {speechEmotions.length > 0 && (
-            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <div className="p-6 bg-gradient-to-r from-purple-900/30 to-pink-900/30">
-                <h3 className="text-2xl font-semibold text-gray-100 flex items-center gap-2">
-                  <span className="text-3xl">🎙️</span>
-                  Speech Emotions
+            <div className="bg-white border-4 border-eink-black overflow-hidden">
+              <div className="p-4 bg-eink-black text-white border-b-2 border-eink-black">
+                <h3 className="text-lg font-bold font-mono">
+                  SPEECH EMOTIONS
                 </h3>
               </div>
-              <div className="p-6 max-h-[600px] overflow-y-auto">
+              <div className="p-4 max-h-[600px] overflow-y-auto">
                 <div className="space-y-3">
                   {speechEmotions.map((emotion, index) => (
-                    <div key={index} className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-lg p-4">
+                    <div key={index} className="bg-eink-white border-2 border-eink-black p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-3xl">{getEmotionEmoji(emotion.emotion)}</span>
-                          <span className="text-lg font-semibold text-gray-100 capitalize">{emotion.emotion}</span>
+                          <span className="text-2xl">{getEmotionEmoji(emotion.emotion)}</span>
+                          <span className="text-sm font-bold text-eink-black uppercase font-mono">{emotion.emotion}</span>
                         </div>
-                        <span className="text-sm font-mono text-purple-400">{emotion.timestamp.toFixed(1)}s</span>
+                        <span className="text-xs font-mono text-eink-gray">{emotion.timestamp.toFixed(1)}s</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="flex-1 h-3 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="flex-1 h-4 bg-white border-2 border-eink-black overflow-hidden">
                           <div
-                            className="h-full rounded-full transition-all"
+                            className="h-full bg-eink-black"
                             style={{
                               width: `${emotion.confidence * 100}%`,
-                              backgroundColor: getEmotionColor(emotion.emotion),
                             }}
                           ></div>
                         </div>
-                        <span className="text-sm font-semibold text-gray-200 min-w-[50px] text-right">{(emotion.confidence * 100).toFixed(0)}%</span>
+                        <span className="text-xs font-bold text-eink-black min-w-[45px] text-right font-mono">{(emotion.confidence * 100).toFixed(0)}%</span>
                       </div>
                       {emotion.events.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {emotion.events.map((event, i) => (
-                            <span key={i} className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">
+                            <span key={i} className="text-xs bg-white border border-eink-black text-eink-black px-2 py-1 font-mono">
                               {event}
                             </span>
                           ))}
@@ -271,16 +251,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
 
           {/* Facial Emotions Summary */}
           {facialEmotions.length > 0 && (
-            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <div className="p-6 bg-gradient-to-r from-indigo-900/30 via-purple-900/30 to-pink-900/30">
-                <h3 className="text-2xl font-semibold text-gray-100 flex items-center gap-2">
-                  <span className="text-3xl">🎭</span>
-                  Facial Emotions Distribution
+            <div className="bg-white border-4 border-eink-black overflow-hidden">
+              <div className="p-4 bg-eink-black text-white border-b-2 border-eink-black">
+                <h3 className="text-lg font-bold font-mono">
+                  FACIAL EMOTIONS
                 </h3>
               </div>
-              <div className="p-6 max-h-[600px] overflow-y-auto">
+              <div className="p-4 max-h-[600px] overflow-y-auto">
                 {/* Emotion Distribution Bars */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {['happy', 'sad', 'angry', 'fear', 'surprise', 'disgust', 'neutral'].map((emotionType) => {
                     const count = facialEmotions.filter(e => e.emotion.toLowerCase() === emotionType).length;
                     const percentage = (count / facialEmotions.length) * 100;
@@ -288,17 +267,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                       <div key={emotionType} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-2xl">{getEmotionEmoji(emotionType)}</span>
-                            <span className="text-lg font-semibold text-gray-100 capitalize">{emotionType}</span>
+                            <span className="text-xl">{getEmotionEmoji(emotionType)}</span>
+                            <span className="text-sm font-bold text-eink-black uppercase font-mono">{emotionType}</span>
                           </div>
-                          <span className="text-sm font-semibold text-gray-300">{count} frames ({percentage.toFixed(1)}%)</span>
+                          <span className="text-xs font-bold text-eink-gray font-mono">{count}f ({percentage.toFixed(1)}%)</span>
                         </div>
-                        <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-4 bg-white border-2 border-eink-black overflow-hidden">
                           <div
-                            className="h-full rounded-full transition-all"
+                            className="h-full bg-eink-black"
                             style={{
                               width: `${percentage}%`,
-                              backgroundColor: getEmotionColor(emotionType),
                             }}
                           ></div>
                         </div>
@@ -313,29 +291,28 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
 
         {/* Emotion Timeline Graph */}
         {emotionTimeline.length > 0 && (
-          <div className="bg-gray-800 rounded-xl shadow-lg p-8">
-            <h3 className="text-2xl font-semibold text-gray-100 flex items-center gap-2 mb-6">
-              <span className="text-3xl">📈</span>
-              Emotion Timeline
+          <div className="bg-white border-4 border-eink-black p-6">
+            <h3 className="text-xl font-bold text-eink-black font-mono mb-6 border-b-2 border-eink-black pb-2">
+              EMOTION TIMELINE
             </h3>
 
             {/* Timeline Graph */}
-            <div className="relative h-[400px] bg-gray-900/50 rounded-lg p-16">
+            <div className="relative h-[400px] bg-eink-white border-2 border-eink-black p-12">
               {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400 pl-12 py-12">
+              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-eink-black pl-8 py-10">
                 {['happy', 'sad', 'angry', 'fear', 'surprise', 'disgust', 'neutral'].map((emotion) => (
                   <div key={emotion} className="flex items-center gap-2">
-                    <span className="text-lg">{getEmotionEmoji(emotion)}</span>
+                    <span className="text-base">{getEmotionEmoji(emotion)}</span>
                   </div>
                 ))}
               </div>
 
               {/* Graph area */}
-              <div className="ml-16 h-full relative">
+              <div className="ml-12 h-full relative">
                 {/* Grid lines */}
                 <div className="absolute inset-0 flex flex-col justify-between">
                   {[...Array(7)].map((_, i) => (
-                    <div key={i} className="border-t border-gray-700/50"></div>
+                    <div key={i} className="border-t border-eink-gray border-dashed opacity-30"></div>
                   ))}
                 </div>
 
@@ -357,11 +334,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                         }}
                       >
                         <div
-                          className="w-3 h-3 rounded-full shadow-lg"
-                          style={{ backgroundColor: getEmotionColor(point.emotion) }}
+                          className="w-2 h-2 bg-eink-black border border-eink-black"
                         ></div>
-                        <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                          {point.emotion} at {point.timestamp.toFixed(1)}s
+                        <div className="absolute bottom-full mb-2 hidden group-hover:block bg-eink-black text-white text-xs px-2 py-1 whitespace-nowrap z-10 font-mono">
+                          {point.emotion} @ {point.timestamp.toFixed(1)}s
                         </div>
                       </div>
                     );
@@ -386,8 +362,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                           y1={`${y1}%`}
                           x2={`${x2}%`}
                           y2={`${y2}%`}
-                          stroke="rgba(147, 51, 234, 0.5)"
-                          strokeWidth="2"
+                          stroke="#1a1a1a"
+                          strokeWidth="1"
                         />
                       );
                     })}
@@ -395,7 +371,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                 </div>
 
                 {/* X-axis time markers */}
-                <div className="absolute -bottom-8 left-0 right-0 flex justify-between text-xs text-gray-400">
+                <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-xs text-eink-gray font-mono">
                   <span>0s</span>
                   {emotionTimeline.length > 0 && (
                     <>
@@ -411,14 +387,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
 
         {/* Audio Events */}
         {audioEvents.length > 0 && (
-          <div className="bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-2xl font-semibold text-gray-100 flex items-center gap-2 mb-4">
-              <span className="text-3xl">🔊</span>
-              Audio Events Detected
+          <div className="bg-white border-4 border-eink-black p-6">
+            <h3 className="text-xl font-bold text-eink-black font-mono mb-4 border-b-2 border-eink-black pb-2">
+              AUDIO EVENTS
             </h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {audioEvents.map((event, index) => (
-                <span key={index} className="bg-gradient-to-r from-orange-900/30 to-yellow-900/30 text-orange-200 px-5 py-2.5 rounded-full font-semibold text-base shadow-sm">
+                <span key={index} className="bg-eink-black text-white px-4 py-2 border-2 border-eink-black font-bold text-sm font-mono">
                   {event}
                 </span>
               ))}
@@ -431,19 +406,18 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
       {showTranscriptionModal && result.transcription && (
         <>
           <div 
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 animate-fade-in"
+            className="fixed inset-0 bg-eink-black/80 z-40"
             onClick={() => setShowTranscriptionModal(false)}
           ></div>
           <div className="fixed inset-8 z-50 flex items-center justify-center">
-            <div className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-              <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-900/50 to-indigo-900/50">
-                <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-3">
-                  <span className="text-3xl">🎤</span>
-                  Speech Transcription
+            <div className="bg-white border-4 border-eink-black w-full max-w-4xl max-h-[90vh] flex flex-col">
+              <div className="flex items-center justify-between p-4 bg-eink-black text-white border-b-2 border-eink-black">
+                <h2 className="text-xl font-bold font-mono">
+                  TRANSCRIPTION
                 </h2>
                 <button
                   onClick={() => setShowTranscriptionModal(false)}
-                  className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"
+                  className="text-white hover:bg-eink-dark p-2 border-2 border-white"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -451,26 +425,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ result, onClose }) =>
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-6">
-                <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 rounded-lg p-6 mb-6">
-                  <p className="text-lg text-gray-100 leading-relaxed">{result.transcription.text}</p>
-                  <div className="flex gap-4 mt-4 text-sm text-gray-300">
-                    <span className="bg-gray-800 px-3 py-1 rounded-full">
-                      Language: <span className="text-blue-400">{result.transcription.language}</span>
+                <div className="bg-eink-white border-2 border-eink-black p-6 mb-6 dither-pattern">
+                  <p className="text-sm text-eink-black leading-relaxed font-mono">{result.transcription.text}</p>
+                  <div className="flex gap-4 mt-4 text-xs text-eink-black font-mono">
+                    <span className="bg-white border border-eink-black px-3 py-1">
+                      LANG: <span className="font-bold">{result.transcription.language}</span>
                     </span>
-                    <span className="bg-gray-800 px-3 py-1 rounded-full">
-                      Segments: <span className="text-blue-400">{result.transcription.segments.length}</span>
+                    <span className="bg-white border border-eink-black px-3 py-1">
+                      SEG: <span className="font-bold">{result.transcription.segments.length}</span>
                     </span>
                   </div>
                 </div>
                 {result.transcription.segments.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="text-lg font-semibold text-gray-200 mb-3">Timeline</h4>
+                    <h4 className="text-base font-bold text-eink-black mb-3 font-mono border-b-2 border-eink-black pb-1">TIMELINE</h4>
                     {result.transcription.segments.map((segment, index) => (
-                      <div key={index} className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors">
-                        <span className="text-sm font-mono text-blue-400 bg-blue-900/30 px-3 py-1 rounded-full whitespace-nowrap">
-                          {segment.start.toFixed(1)}s - {segment.end.toFixed(1)}s
+                      <div key={index} className="flex items-center gap-4 p-3 bg-white border-2 border-eink-black hover:bg-eink-white">
+                        <span className="text-xs font-mono text-eink-black bg-eink-white border border-eink-black px-2 py-1 whitespace-nowrap">
+                          {segment.start.toFixed(1)}s-{segment.end.toFixed(1)}s
                         </span>
-                        <span className="text-gray-200 flex-1">{segment.text}</span>
+                        <span className="text-eink-black flex-1 font-mono text-sm">{segment.text}</span>
                       </div>
                     ))}
                   </div>

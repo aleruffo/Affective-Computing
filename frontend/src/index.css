@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: 'Courier New', 'Courier', monospace, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 }
 
@@ -18,8 +18,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #111827;
-  color: #f9fafb;
+  background-color: #e8e8e8;
+  color: #1a1a1a;
 }
 
 #root {
@@ -27,40 +27,54 @@ body {
   margin: 0 auto;
 }
 
-/* Modal Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* E-ink transition effect */
+* {
+  transition: none !important;
+  animation-duration: 0ms !important;
 }
 
-@keyframes scaleIn {
+/* Dithering pattern background */
+.dither-pattern {
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.03) 1px,
+      rgba(0, 0, 0, 0.03) 2px
+    );
+}
+
+.dither-pattern-dark {
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.08) 1px,
+      rgba(0, 0, 0, 0.08) 2px
+    );
+}
+
+/* Utility classes */
+.border-thick {
+  border-width: 2px;
+}
+
+.border-thicker {
+  border-width: 3px;
+}
+
+/* Modal Animations - disabled for e-ink effect */
+@keyframes fadeIn {
   from {
-    opacity: 0;
-    transform: scale(0.95);
+    opacity: 1;
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
-}
-
-/* Utility class for gray-750 */
-.bg-gray-750 {
-  background-color: #2d3748;
-}
-
-.hover\:bg-gray-750:hover {
-  background-color: #2d3748;
+  animation: none;
 }
